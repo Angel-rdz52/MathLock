@@ -155,6 +155,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("addQuestion").addEventListener("click", addQuestion);
   document.getElementById("uploadGist").addEventListener("click", uploadToGist);
+  document.getElementById("saveQuestion").addEventListener("click", saveQuestion); // ✅ nuevo
+  document.getElementById("clearForm").addEventListener("click", () => clearForm()); // ✅ nuevo
 
   // El botón de guardar usa el atributo onclick, pero podrías hacerlo así también:
   // document.querySelector(".actions button[onclick='saveQuestion()']").addEventListener("click", saveQuestion);
