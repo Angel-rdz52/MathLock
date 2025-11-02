@@ -2,7 +2,6 @@ body {
   font-family: 'Segoe UI', sans-serif;
   background: #f5f6fa;
   margin: 0;
-  padding: 0;
   color: #333;
 }
 
@@ -59,16 +58,17 @@ input, select, textarea {
   box-sizing: border-box;
 }
 
-.question-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 15px;
-  background: #fafafa;
+.row {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
 }
 
-.options {
-  margin-left: 10px;
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 pre {
@@ -80,18 +80,9 @@ pre {
   white-space: pre-wrap;
 }
 
-.row {
-  display: flex;
-  gap: 15px;
-  justify-content: space-between;
-}
-
-.row label {
-  display: block;
-}
-
-.row select {
-  width: 100%;
+.center {
+  text-align: center;
+  margin-top: 15px;
 }
 
 @media (max-width: 600px) {
