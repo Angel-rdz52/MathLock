@@ -185,3 +185,44 @@ async function uploadGist() {
    ========================================================== */
 document.getElementById("addQuestion").addEventListener("click", addQuestion);
 document.getElementById("uploadGist").addEventListener("click", uploadGist);
+
+/**
+ * Sube el archivo JSON completo con todas las preguntas guardadas a GitHub Gist.
+ * Se comunica con el endpoint /api/upload-file en tu proyecto de Vercel.
+ */
+async function uploadToGist() {
+  if (questions.length === 0) {
+    alert("No hay preguntas para subir.");
+    return;
+  }
+
+  const filename = prompt("Nombre del archivo JSON:", "guia_estudio.json");
+  if (!filename) return;
+
+  const content = JSON.stringify(questions, null, 2);
+
+  try {
+    const response = await fetch("/api/upload-file", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, filename })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(`✅ Gist creado correctamente.\nURL: ${data.html_url}`);
+      console.log("Gist URL:", data.html_url);
+    } else {
+      alert(`❌ Error al crear el Gist: ${data.message || "Error desconocido"}`);
+      console.error(data);
+    }
+  } catch (err) {
+    alert("⚠️ Error al conectar con el servidor.");
+    console.error(err);
+  }
+}
+
+// Asociar al botón
+document.getElementById("uploadGist").addEventListener("click", uploadToGist);
+
