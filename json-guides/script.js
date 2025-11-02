@@ -1,72 +1,187 @@
-function typeQuestion() {
-  const typeSelect = document.getElementById("type");
-  const optionsContainer = document.getElementById("optionsContainer");
-  const openAnswerContainer = document.getElementById("openAnswerContainer");
+/* ==========================================================
+   Editor de Preguntas - MathLock
+   ----------------------------------------------------------
+   Este script permite crear, visualizar y subir preguntas 
+   (tipo test o abiertas) en formato JSON a GitHub Gist.
+   ========================================================== */
 
-  if (typeSelect.value === "abierta") {
-    optionsContainer.style.display = "none";
-    openAnswerContainer.style.display = "block";
+/* ------------------------
+   VARIABLES GLOBALES
+--------------------------- */
+
+// Array donde se almacenan todas las preguntas creadas
+let questions = [];
+
+
+/* ==========================================================
+   FUNCIÓN: typeQuestion()
+   ----------------------------------------------------------
+   Se ejecuta cuando el usuario cambia el tipo de pregunta.
+   Si el tipo es "abierta", oculta las opciones de múltiple
+   elección y muestra el campo de respuesta abierta.
+   Elementos involucrados:
+     - select#type
+     - div#options-container
+     - div#open-answer-container
+   ========================================================== */
+function typeQuestion() {
+  const type = document.getElementById("type").value;
+  const optionsContainer = document.getElementById("options-container");
+  const openAnswer = document.getElementById("open-answer-container");
+
+  if (type === "abierta") {
+    optionsContainer.classList.add("hidden");
+    openAnswer.classList.remove("hidden");
   } else {
-    optionsContainer.style.display = "block";
-    openAnswerContainer.style.display = "none";
+    optionsContainer.classList.remove("hidden");
+    openAnswer.classList.add("hidden");
   }
 }
 
-window.onload = () => {
-  typeQuestion(); // Estado inicial
 
-  const addQuestionBtn = document.getElementById("addQuestion");
-  const output = document.getElementById("output");
-  const questions = [];
+/* ==========================================================
+   FUNCIÓN: saveQuestion()
+   ----------------------------------------------------------
+   Guarda una pregunta en el array "questions".
+   Valida los campos según el tipo de pregunta.
+   Luego actualiza la vista previa del JSON en pantalla.
+   Elementos involucrados:
+     - textarea#question
+     - select#difficulty
+     - select#type
+     - input#json-name
+     - div#options-container
+     - input#open-answer
+     - pre#json-preview
+   ========================================================== */
+function saveQuestion() {
+  const questionText = document.getElementById("question").value.trim();
+  const difficulty = document.getElementById("difficulty").value;
+  const type = document.getElementById("type").value;
+  const jsonName = document.getElementById("json-name").value.trim();
+  const preview = document.getElementById("json-preview");
 
-  addQuestionBtn.addEventListener("click", () => {
-    const type = document.getElementById("type").value;
-    const difficulty = document.getElementById("difficulty").value;
-    const question = document.getElementById("question").value.trim();
-    const jsonName = document.getElementById("jsonName").value.trim();
+  if (!jsonName) return alert("⚠️ Escribe un nombre para el archivo JSON.");
+  if (!questionText) return alert("⚠️ Escribe la pregunta antes de guardar.");
 
-    if (!jsonName) {
-      alert("Agrega un nombre para el archivo JSON.");
-      return;
+  // Objeto base de la pregunta
+  let newQuestion = { 
+    pregunta: questionText, 
+    dificultad: difficulty, 
+    tipo: type 
+  };
+
+  if (type === "multiple") {
+    // Recolectar opciones
+    const options = [...document.querySelectorAll("#options-container .option input[type='text']")]
+                    .map(o => o.value.trim());
+    const correct = document.querySelector("#options-container input[type='radio']:checked");
+
+    if (!correct) return alert("⚠️ Selecciona la opción correcta.");
+    if (options.some(opt => !opt)) return alert("⚠️ Completa todas las opciones.");
+
+    newQuestion.opciones = options;
+    newQuestion.correcta = options[parseInt(correct.value)];
+
+  } else {
+    // Recolectar respuesta abierta
+    const answer = document.getElementById("open-answer").value.trim();
+    if (!answer) return alert("⚠️ Escribe la respuesta esperada.");
+    newQuestion.respuesta = answer;
+  }
+
+  // Agregar la pregunta al arreglo global
+  questions.push(newQuestion);
+
+  // Actualizar vista previa
+  preview.textContent = JSON.stringify(questions, null, 2);
+
+  alert("✅ Pregunta guardada correctamente.");
+}
+
+
+/* ==========================================================
+   FUNCIÓN: clearForm()
+   ----------------------------------------------------------
+   Limpia todos los campos del formulario para ingresar
+   una nueva pregunta sin eliminar las preguntas ya guardadas.
+   Elementos involucrados:
+     - textarea#question
+     - input#open-answer
+     - inputs dentro de #options-container
+   ========================================================== */
+function clearForm() {
+  document.getElementById("question").value = "";
+  document.getElementById("open-answer").value = "";
+  document.querySelectorAll("#options-container input[type='text']").forEach(o => o.value = "");
+  document.querySelectorAll("#options-container input[type='radio']").forEach(r => r.checked = false);
+}
+
+
+/* ==========================================================
+   FUNCIÓN: addQuestion()
+   ----------------------------------------------------------
+   Limpia el formulario para que el usuario agregue una
+   nueva pregunta sin alterar las anteriores.
+   Se ejecuta al presionar el botón "➕ Agregar".
+   ========================================================== */
+function addQuestion() {
+  clearForm();
+  alert("🆕 Formulario listo para una nueva pregunta.");
+}
+
+
+/* ==========================================================
+   FUNCIÓN: uploadGist()
+   ----------------------------------------------------------
+   Sube el JSON con las preguntas almacenadas en "questions"
+   directamente a GitHub Gist como un archivo público.
+   Requiere:
+     - Nombre del archivo JSON (input#json-name)
+     - Contenido en el arreglo global "questions"
+   ========================================================== */
+async function uploadGist() {
+  const jsonName = document.getElementById("json-name").value.trim();
+  if (!jsonName) return alert("⚠️ Escribe un nombre para el archivo JSON.");
+  if (questions.length === 0) return alert("⚠️ No hay preguntas para subir.");
+
+  // Estructura que GitHub Gist espera
+  const gistData = {
+    description: "Preguntas generadas desde el Editor de MathLock",
+    public: true,
+    files: {
+      [`${jsonName}.json`]: { content: JSON.stringify(questions, null, 2) }
     }
+  };
 
-    if (!question) {
-      alert("Escribe la pregunta antes de continuar.");
-      return;
-    }
+  try {
+    const response = await fetch("https://api.github.com/gists", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gistData)
+    });
 
-    const questionObj = {
-      pregunta: question,
-      dificultad: difficulty,
-      tipo: type,
-    };
+    const data = await response.json();
 
-    if (type === "multiple") {
-      const options = [
-        document.getElementById("option1").value,
-        document.getElementById("option2").value,
-        document.getElementById("option3").value,
-        document.getElementById("option4").value
-      ];
-
-      const correctOption = document.querySelector("input[name='correctOption']:checked");
-      if (!correctOption) {
-        alert("Selecciona una respuesta correcta.");
-        return;
-      }
-
-      questionObj.opciones = options;
-      questionObj.correcta = parseInt(correctOption.value);
+    if (data.html_url) {
+      alert(`✅ Subido correctamente:\n${data.html_url}`);
     } else {
-      const openAnswer = document.getElementById("openAnswer").value.trim();
-      if (!openAnswer) {
-        alert("Agrega la respuesta correcta.");
-        return;
-      }
-      questionObj.respuesta = openAnswer;
+      alert("❌ Error al subir a Gist.");
     }
+  } catch (err) {
+    console.error(err);
+    alert("⚠️ Ocurrió un error al subir a Gist.");
+  }
+}
 
-    questions.push(questionObj);
-    output.textContent = JSON.stringify({ nombre: jsonName, preguntas: questions }, null, 2);
-  });
-};
+
+/* ==========================================================
+   EVENTOS PRINCIPALES
+   ----------------------------------------------------------
+   Se ejecutan cuando se cargan los botones en el DOM.
+   Vinculan las funciones anteriores con los botones:
+     - ➕ Agregar  → addQuestion()
+     - ⬆️ Subir a Gist → uploadGist()
+   ========================================================== */
+document.getElementById("addQuestion").addEventListener("click", addQuestion);
+document.getElementById("uploadGist").addEventListener("click", uploadGist);
