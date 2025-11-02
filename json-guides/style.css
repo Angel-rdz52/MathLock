@@ -9,13 +9,32 @@ body {
 .app-header {
   background: linear-gradient(90deg, #0078d7, #00a3ff);
   color: white;
-  text-align: center;
-  padding: 15px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
+.toolbar button {
+  background-color: white;
+  color: #0078d7;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 8px;
+  transition: 0.3s;
+}
+
+.toolbar button:hover {
+  background-color: #005fa3;
+  color: white;
+}
+
 .container {
-  max-width: 800px;
+  max-width: 850px;
   margin: 30px auto;
   padding: 20px;
 }
@@ -25,11 +44,13 @@ body {
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
 }
 
 h2 {
   text-align: center;
   color: #0078d7;
+  margin-bottom: 20px;
 }
 
 .form-row {
@@ -52,7 +73,6 @@ textarea, select, input[type="text"] {
   box-sizing: border-box;
 }
 
-/* Fila de dificultad y tipo */
 .inline-fields {
   display: flex;
   gap: 15px;
@@ -110,6 +130,14 @@ button:hover {
   display: none;
 }
 
+pre {
+  background: #f4f4f4;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
 footer {
   text-align: center;
   padding: 10px;
@@ -122,5 +150,14 @@ footer {
 @media (max-width: 600px) {
   .inline-fields {
     flex-direction: column;
+  }
+
+  .app-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toolbar button {
+    margin-left: 0;
   }
 }
