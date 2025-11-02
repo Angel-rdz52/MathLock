@@ -1,66 +1,126 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f2f5f9;
+  color: #333;
   margin: 0;
-  background-color: #f7f7f7;
+  padding: 0;
 }
 
-header {
-  background-color: #005b96;
+.app-header {
+  background: linear-gradient(90deg, #0078d7, #00a3ff);
   color: white;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  text-align: center;
+  padding: 15px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-.toolbar button {
-  margin-right: 10px;
-  background-color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.toolbar button:hover {
-  background-color: #e3e3e3;
-}
-
-main {
+.container {
+  max-width: 800px;
+  margin: 30px auto;
   padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #0078d7;
 }
 
 .form-row {
   margin-bottom: 15px;
-}
-
-.form-row.horizontal {
   display: flex;
-  gap: 30px;
-  align-items: center;
+  flex-direction: column;
 }
 
 label {
-  font-weight: bold;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
-textarea, input, select {
+textarea, select, input[type="text"] {
   width: 100%;
-  padding: 6px;
-  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Fila de dificultad y tipo */
+.inline-fields {
+  display: flex;
+  gap: 15px;
+}
+
+.inline-fields .form-row {
+  flex: 1;
+}
+
+/* Opciones */
+#options-container {
+  margin-top: 10px;
 }
 
 .option {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
-pre {
-  background-color: #222;
-  color: #00ff90;
+.option input[type="radio"] {
+  flex: 0 0 20px;
+}
+
+.option input[type="text"] {
+  flex: 1;
+  width: auto;
+}
+
+/* Botones */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+button {
+  background-color: #0078d7;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+.hidden {
+  display: none;
+}
+
+footer {
+  text-align: center;
   padding: 10px;
-  border-radius: 5px;
-  overflow-x: auto;
+  font-size: 13px;
+  color: #777;
+  margin-top: 30px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .inline-fields {
+    flex-direction: column;
+  }
 }
