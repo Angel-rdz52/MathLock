@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Guías JSON - MathLock</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>📘 Generador de Guías JSON</h1>
+    <p class="subtitle">Crea guías educativas para MathLock y súbelas directamente a GitHub Gist</p>
+
+    <div class="card">
+      <label>Pregunta:</label>
+      <input type="text" id="question" placeholder="Ejemplo: ¿Cuál es la capital de Francia?">
+
+      <label>Tipo de pregunta:</label>
+      <select id="type">
+        <option value="multiple">Opción múltiple</option>
+        <option value="abierta">Respuesta abierta</option>
+      </select>
+
+      <div id="options-container">
+        <label>Opciones:</label>
+        <input type="text" class="option" placeholder="Opción 1">
+        <input type="text" class="option" placeholder="Opción 2">
+        <input type="text" class="option" placeholder="Opción 3">
+        <input type="text" class="option" placeholder="Opción 4">
+      </div>
+
+      <label>Respuesta correcta:</label>
+      <input type="text" id="answer" placeholder="Ejemplo: París">
+
+      <label>Dificultad:</label>
+      <select id="difficulty">
+        <option value="fácil">Fácil</option>
+        <option value="media">Media</option>
+        <option value="difícil">Difícil</option>
+      </select>
+
+      <button id="addQuestion">➕ Agregar pregunta</button>
+      <button id="generateJSON">🧾 Generar JSON</button>
+      <button id="uploadGist">📤 Subir a Gist</button>
+    </div>
+
+    <pre id="output" class="json-output"></pre>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
