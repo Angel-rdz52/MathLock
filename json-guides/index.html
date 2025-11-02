@@ -9,6 +9,10 @@
 <body>
   <header class="app-header">
     <h1>📘 Editor de Preguntas - MathLock</h1>
+    <div class="toolbar">
+      <button id="addQuestion">➕ Agregar</button>
+      <button id="uploadGist">⬆️ Subir a Gist</button>
+    </div>
   </header>
 
   <main class="container">
@@ -64,10 +68,20 @@
         <input type="text" id="open-answer" placeholder="Escribe la respuesta correcta...">
       </div>
 
+      <div class="form-row">
+        <label for="json-name">Nombre del archivo JSON:</label>
+        <input type="text" id="json-name" placeholder="Ejemplo: preguntas_bloque1">
+      </div>
+
       <div class="actions">
         <button onclick="saveQuestion()">💾 Guardar</button>
         <button onclick="clearForm()">🧹 Limpiar</button>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>Vista previa del JSON</h2>
+      <pre id="json-preview">{}</pre>
     </section>
   </main>
 
