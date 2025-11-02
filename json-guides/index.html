@@ -1,63 +1,205 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generador de Guías JSON - MathLock</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Generador de Guías JSON</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      background: #3498db;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .question-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #fafafa;
+    }
+
+    .options {
+      margin-left: 10px;
+    }
+
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-  <!-- Barra de herramientas -->
-  <header class="toolbar">
-    <h1>📘 JSON Study Builder</h1>
-    <div class="toolbar-buttons">
-      <button id="addQuestionBtn">➕ Agregar Pregunta</button>
-      <button id="uploadGistBtn">☁️ Subir a Gist</button>
+
+  <header>
+    <h1>🧩 Generador de Guías JSON</h1>
+    <div class="toolbar">
+      <button id="addQuestion">➕ Agregar pregunta</button>
+      <button id="uploadGist">☁️ Subir a Gist</button>
     </div>
   </header>
 
-  <!-- Contenedor principal -->
-  <main>
-    <section id="formContainer">
-      <h2>Nueva pregunta</h2>
-      <div class="form-group">
+  <div class="container">
+    <label>Nombre del archivo JSON:</label>
+    <input type="text" id="fileName" placeholder="Ej: guia_matematicas">
+
+    <div id="questionsContainer"></div>
+
+    <h3>📄 Vista previa JSON:</h3>
+    <pre id="jsonPreview">{}</pre>
+  </div>
+
+  <script>
+    const questions = [];
+
+    document.getElementById('addQuestion').addEventListener('click', addQuestion);
+
+    function addQuestion() {
+      const container = document.getElementById('questionsContainer');
+      const card = document.createElement('div');
+      card.classList.add('question-card');
+
+      card.innerHTML = `
         <label>Dificultad:</label>
-        <select id="difficulty">
+        <select class="difficulty">
           <option value="Fácil">Fácil</option>
           <option value="Media">Media</option>
           <option value="Difícil">Difícil</option>
         </select>
-      </div>
 
-      <div class="form-group">
         <label>Tipo de pregunta:</label>
-        <select id="questionType">
-          <option value="opcion">Opción múltiple</option>
+        <select class="type">
+          <option value="multiple">Opción múltiple</option>
           <option value="abierta">Respuesta abierta</option>
         </select>
-      </div>
 
-      <div class="form-group">
         <label>Pregunta:</label>
-        <input type="text" id="questionText" placeholder="Escribe la pregunta aquí..." />
-      </div>
+        <textarea class="questionText" rows="2" placeholder="Escribe la pregunta..."></textarea>
 
-      <div id="optionsContainer">
-        <label>Opciones:</label>
-        <div class="option"><input type="radio" name="correctOption" value="0" /><input type="text" placeholder="Opción 1" /></div>
-        <div class="option"><input type="radio" name="correctOption" value="1" /><input type="text" placeholder="Opción 2" /></div>
-        <div class="option"><input type="radio" name="correctOption" value="2" /><input type="text" placeholder="Opción 3" /></div>
-        <div class="option"><input type="radio" name="correctOption" value="3" /><input type="text" placeholder="Opción 4" /></div>
-      </div>
-    </section>
+        <div class="options">
+          <label>Opciones:</label>
+          ${[1,2,3,4].map(i => `
+            <div>
+              <input type="radio" name="correct-${Date.now()}" class="correctOption" value="${i}">
+              <input type="text" class="option" placeholder="Opción ${i}">
+            </div>
+          `).join('')}
+        </div>
+      `;
 
-    <!-- Vista previa del JSON -->
-    <section id="jsonOutput">
-      <h2>Vista previa del JSON generado</h2>
-      <pre id="jsonPreview">{}</pre>
-    </section>
-  </main>
+      // Ocultar opciones si es abierta
+      const typeSelect = card.querySelector('.type');
+      const optionsDiv = card.querySelector('.options');
 
-  <script src="script.js"></script>
+      typeSelect.addEventListener('change', () => {
+        if (typeSelect.value === 'abierta') {
+          optionsDiv.style.display = 'none';
+        } else {
+          optionsDiv.style.display = 'block';
+        }
+      });
+
+      container.appendChild(card);
+      updateJSON();
+      
+      // Actualiza el JSON en vivo cuando cambian datos
+      card.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', updateJSON);
+        el.addEventListener('change', updateJSON);
+      });
+    }
+
+    function updateJSON() {
+      const cards = document.querySelectorAll('.question-card');
+      const data = [];
+
+      cards.forEach(card => {
+        const type = card.querySelector('.type').value;
+        const difficulty = card.querySelector('.difficulty').value;
+        const questionText = card.querySelector('.questionText').value;
+
+        let questionObj = { tipo: type, dificultad: difficulty, pregunta: questionText };
+
+        if (type === 'multiple') {
+          const options = Array.from(card.querySelectorAll('.option')).map(o => o.value);
+          const correctIndex = Array.from(card.querySelectorAll('.correctOption')).findIndex(r => r.checked);
+          questionObj.opciones = options;
+          questionObj.correcta = options[correctIndex] || "";
+        } else {
+          questionObj.respuesta = "";
+        }
+
+        data.push(questionObj);
+      });
+
+      const fileName = document.getElementById('fileName').value || "guia_sin_nombre";
+      const jsonOutput = { nombre: fileName, preguntas: data };
+      document.getElementById('jsonPreview').textContent = JSON.stringify(jsonOutput, null, 2);
+    }
+
+    // Subida simulada (a reemplazar luego con la función real)
+    document.getElementById('uploadGist').addEventListener('click', () => {
+      alert('Subida a Gist en desarrollo...');
+    });
+  </script>
+
 </body>
 </html>
