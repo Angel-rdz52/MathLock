@@ -2,73 +2,66 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Generador de Guías JSON</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Preguntas</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>🧩 Generador de Guías JSON</h1>
+    <h1>Generador de Preguntas JSON</h1>
     <div class="toolbar">
-      <button id="addQuestion">➕ Nueva pregunta</button>
-      <button id="uploadGist">☁️ Subir a Gist</button>
+      <button id="addQuestion">➕ Agregar pregunta</button>
+      <button id="uploadGist">⬆️ Subir a Gist</button>
     </div>
   </header>
 
-  <main class="container">
-    <label for="fileName">📘 Nombre del archivo JSON:</label>
-    <input type="text" id="fileName" placeholder="Ejemplo: guia_matematicas">
+  <main>
+    <form id="questionForm">
+      <div class="form-row">
+        <label for="jsonName">Nombre del JSON:</label>
+        <input type="text" id="jsonName" placeholder="ej. bloque1_matematicas">
+      </div>
 
-    <section id="formSection">
-      <div class="row">
-        <div class="field">
+      <div class="form-row horizontal">
+        <div>
           <label for="difficulty">Dificultad:</label>
           <select id="difficulty">
-            <option value="fácil">Fácil</option>
-            <option value="media">Media</option>
-            <option value="difícil">Difícil</option>
+            <option value="1">Fácil</option>
+            <option value="2">Medio</option>
+            <option value="3">Difícil</option>
           </select>
         </div>
 
-        <div class="field">
+        <div>
           <label for="type">Tipo de pregunta:</label>
           <select id="type" onchange="typeQuestion()">
             <option value="multiple">Opción múltiple</option>
-            <option value="abierta">Respuesta abierta</option>
+            <option value="abierta">Abierta</option>
           </select>
         </div>
       </div>
 
-      <label for="questionText">Pregunta:</label>
-      <textarea id="questionText" rows="2" placeholder="Escribe la pregunta aquí..."></textarea>
-
-      <!-- 🔹 Contenedor de opciones -->
-      <div id="optionsContainer">
-        <label>Opciones (elige la correcta con un círculo):</label>
-        <div class="optionRow">
-          <input type="radio" name="correctOption" value="0">
-          <input type="text" class="optionInput" placeholder="Opción 1">
-        </div>
-        <div class="optionRow">
-          <input type="radio" name="correctOption" value="1">
-          <input type="text" class="optionInput" placeholder="Opción 2">
-        </div>
-        <div class="optionRow">
-          <input type="radio" name="correctOption" value="2">
-          <input type="text" class="optionInput" placeholder="Opción 3">
-        </div>
-        <div class="optionRow">
-          <input type="radio" name="correctOption" value="3">
-          <input type="text" class="optionInput" placeholder="Opción 4">
-        </div>
+      <div class="form-row">
+        <label for="question">Pregunta:</label>
+        <textarea id="question" placeholder="Escribe la pregunta aquí..."></textarea>
       </div>
-    </section>
 
-    <div class="center">
-      <button id="saveQuestion">💾 Agregar al JSON</button>
-    </div>
+      <div id="optionsContainer">
+        <label>Opciones:</label>
+        <div class="option"><input type="radio" name="correctOption" value="1"><input type="text" id="option1" placeholder="Opción 1"></div>
+        <div class="option"><input type="radio" name="correctOption" value="2"><input type="text" id="option2" placeholder="Opción 2"></div>
+        <div class="option"><input type="radio" name="correctOption" value="3"><input type="text" id="option3" placeholder="Opción 3"></div>
+        <div class="option"><input type="radio" name="correctOption" value="4"><input type="text" id="option4" placeholder="Opción 4"></div>
+      </div>
 
-    <h3>📄 Vista previa JSON:</h3>
-    <pre id="jsonPreview">[]</pre>
+      <div id="openAnswerContainer" style="display:none;">
+        <label for="openAnswer">Respuesta correcta:</label>
+        <input type="text" id="openAnswer" placeholder="Escribe la respuesta correcta">
+      </div>
+    </form>
+
+    <h2>JSON generado:</h2>
+    <pre id="output"></pre>
   </main>
 
   <script src="script.js"></script>
