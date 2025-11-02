@@ -20,7 +20,7 @@
 
     <section id="formSection">
       <div class="row">
-        <div style="flex:1;">
+        <div class="field">
           <label for="difficulty">Dificultad:</label>
           <select id="difficulty">
             <option value="fácil">Fácil</option>
@@ -29,7 +29,7 @@
           </select>
         </div>
 
-        <div style="flex:1;">
+        <div class="field">
           <label for="type">Tipo de pregunta:</label>
           <select id="type">
             <option value="multiple">Opción múltiple</option>
@@ -41,8 +41,9 @@
       <label for="questionText">Pregunta:</label>
       <textarea id="questionText" rows="2" placeholder="Escribe la pregunta aquí..."></textarea>
 
+      <!-- 🔹 Contenedor de opciones -->
       <div id="optionsContainer">
-        <label>Opciones:</label>
+        <label>Opciones (elige la correcta con un círculo):</label>
         <div class="optionRow">
           <input type="radio" name="correctOption" value="0">
           <input type="text" class="optionInput" placeholder="Opción 1">
