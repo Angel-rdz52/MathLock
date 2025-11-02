@@ -5,16 +5,17 @@ const optionsContainer = document.getElementById("optionsContainer");
 const preview = document.getElementById("jsonPreview");
 
 // 🔹 Cambiar tipo de pregunta
-typeSelect.addEventListener("change", () => {
-  const isAbierta = typeSelect.value === "abierta";
+function typeQuestion() {
+  const typeSelect = document.getElementById("type");
+  const optionsContainer = document.getElementById("optionsContainer");
 
-  // Mostrar u ocultar el bloque de opciones
-  optionsContainer.style.display = isAbierta ? "none" : "block";
+  if (typeSelect.value === "abierta") {
+    optionsContainer.style.display = "none";
+  } else {
+    optionsContainer.style.display = "block";
+  }
+}
 
-  // Limpiar campos de opciones si se cambia de tipo
-  document.querySelectorAll(".optionInput").forEach(o => o.value = "");
-  document.querySelectorAll('input[name="correctOption"]').forEach(r => r.checked = false);
-});
 
 // 🔹 Agregar pregunta al JSON
 document.getElementById("saveQuestion").addEventListener("click", () => {
