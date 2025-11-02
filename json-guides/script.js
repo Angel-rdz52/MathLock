@@ -1,173 +1,194 @@
-<script>
-/* ======================================================
-   🎯 JSON Study Generator – Script principal
-   ------------------------------------------------------
-   Funciones principales:
-   - typeQuestion(): controla visibilidad de opciones según tipo.
-   - generateQuestion(): genera una nueva pregunta en el JSON.
-   - downloadJSON(): descarga las preguntas en un archivo local.
-   - uploadToGist(): sube el archivo JSON a GitHub Gist público.
-   ====================================================== */
+/* ==========================================================
+   🧮 Editor de Preguntas - MathLock
+   ----------------------------------------------------------
+   Permite crear, visualizar y subir preguntas (tipo test o
+   abiertas) en formato JSON a GitHub Gist.
+   Compatible con el backend /api/upload-file.js.
+   ========================================================== */
 
-/**
- * 🔹 typeQuestion()
- * Muestra u oculta el contenedor de opciones y campo de respuesta correcta
- * según el tipo de pregunta seleccionado ("opción múltiple" o "abierta").
- */
+/* ------------------------
+   VARIABLES GLOBALES
+--------------------------- */
+
+// Array donde se almacenan todas las preguntas creadas
+let questions = [];
+
+
+/* ==========================================================
+   FUNCIÓN: typeQuestion()
+   ----------------------------------------------------------
+   Se ejecuta cuando el usuario cambia el tipo de pregunta.
+   Si el tipo es "abierta", oculta las opciones de múltiple
+   elección y muestra el campo de respuesta abierta.
+   Elementos involucrados:
+     - select#type
+     - div#options-container
+     - div#open-answer-container
+   ========================================================== */
 function typeQuestion() {
-  const typeSelect = document.getElementById("type");
-  const optionsContainer = document.getElementById("optionsContainer");
-  const correctAnswerContainer = document.getElementById("correctAnswerContainer");
+  const type = document.getElementById("type").value;
+  const optionsContainer = document.getElementById("options-container");
+  const openAnswer = document.getElementById("open-answer-container");
 
-  if (typeSelect.value === "abierta") {
-    optionsContainer.style.display = "none";
-    correctAnswerContainer.style.display = "block"; // mostrar campo de texto para respuesta abierta
+  if (type === "abierta") {
+    optionsContainer.classList.add("hidden");
+    openAnswer.classList.remove("hidden");
   } else {
-    optionsContainer.style.display = "block";
-    correctAnswerContainer.style.display = "none"; // ocultar campo de texto si es múltiple
+    optionsContainer.classList.remove("hidden");
+    openAnswer.classList.add("hidden");
   }
 }
 
-/**
- * 🔹 generateQuestion()
- * Toma los valores de los campos del formulario y los convierte
- * en un objeto de pregunta. Agrega la pregunta al JSON actual.
- */
-function generateQuestion() {
-  const questionInput = document.getElementById("question").value.trim();
+
+/* ==========================================================
+   FUNCIÓN: saveQuestion()
+   ----------------------------------------------------------
+   Guarda una pregunta en el array "questions".
+   Valida los campos según el tipo de pregunta.
+   Luego actualiza la vista previa del JSON en pantalla.
+   Elementos involucrados:
+     - textarea#question
+     - select#difficulty
+     - select#type
+     - input#open-answer
+     - div#options-container
+     - pre#json-preview
+   ========================================================== */
+function saveQuestion() {
+  const questionText = document.getElementById("question").value.trim();
   const difficulty = document.getElementById("difficulty").value;
   const type = document.getElementById("type").value;
-  const jsonOutput = document.getElementById("jsonOutput");
-  const correctAnswer = document.getElementById("correctAnswer").value.trim();
+  const preview = document.getElementById("json-preview");
 
-  if (!questionInput) {
-    alert("Por favor ingresa una pregunta.");
-    return;
-  }
+  if (!questionText) return alert("⚠️ Escribe la pregunta antes de guardar.");
 
-  const newQuestion = {
-    pregunta: questionInput,
-    dificultad: difficulty,
-    tipo: type,
+  // Objeto base de la pregunta
+  let newQuestion = { 
+    pregunta: questionText, 
+    dificultad: difficulty, 
+    tipo: type 
   };
 
-  // Si es de opción múltiple, tomar las opciones
   if (type === "multiple") {
-    const options = Array.from(document.querySelectorAll(".option-input")).map((input) => input.value.trim());
-    const correctIndex = document.querySelector("input[name='correctOption']:checked");
+    // Recolectar opciones
+    const options = [...document.querySelectorAll("#options-container .option input[type='text']")]
+                    .map(o => o.value.trim());
+    const correct = document.querySelector("#options-container input[type='radio']:checked");
 
-    if (!correctIndex) {
-      alert("Selecciona la respuesta correcta.");
-      return;
-    }
+    if (!correct) return alert("⚠️ Selecciona la opción correcta.");
+    if (options.some(opt => !opt)) return alert("⚠️ Completa todas las opciones.");
 
     newQuestion.opciones = options;
-    newQuestion.respuestaCorrecta = options[parseInt(correctIndex.value)];
+    newQuestion.correcta = options[parseInt(correct.value)];
+
   } else {
-    // Si es abierta
-    if (!correctAnswer) {
-      alert("Debes ingresar la respuesta correcta.");
-      return;
-    }
-    newQuestion.respuestaCorrecta = correctAnswer;
+    // Recolectar respuesta abierta
+    const answer = document.getElementById("open-answer").value.trim();
+    if (!answer) return alert("⚠️ Escribe la respuesta esperada.");
+    newQuestion.respuesta = answer;
   }
 
-  // Leer JSON actual (si existe)
-  let currentData = [];
-  try {
-    currentData = JSON.parse(jsonOutput.value || "[]");
-  } catch (e) {
-    currentData = [];
+  // Agregar la pregunta al arreglo global
+  questions.push(newQuestion);
+
+  // Actualizar vista previa del JSON
+  if (preview) {
+    preview.textContent = JSON.stringify(questions, null, 2);
   }
 
-  // Agregar nueva pregunta
-  currentData.push(newQuestion);
-
-  // Mostrar JSON actualizado
-  jsonOutput.value = JSON.stringify(currentData, null, 2);
-
-  // Limpiar formulario
-  document.getElementById("questionForm").reset();
-  typeQuestion(); // actualizar visibilidad de secciones
+  alert("✅ Pregunta guardada correctamente.");
 }
 
-/**
- * 🔹 downloadJSON()
- * Permite descargar localmente el JSON generado.
- */
-function downloadJSON() {
-  const content = document.getElementById("jsonOutput").value;
-  if (!content) {
-    alert("No hay contenido para descargar.");
+
+/* ==========================================================
+   FUNCIÓN: clearForm()
+   ----------------------------------------------------------
+   Limpia todos los campos del formulario para ingresar
+   una nueva pregunta sin eliminar las preguntas ya guardadas.
+   Elementos involucrados:
+     - textarea#question
+     - input#open-answer
+     - inputs dentro de #options-container
+   ========================================================== */
+function clearForm() {
+  document.getElementById("question").value = "";
+  document.getElementById("open-answer").value = "";
+  document.querySelectorAll("#options-container input[type='text']").forEach(o => o.value = "");
+  document.querySelectorAll("#options-container input[type='radio']").forEach(r => r.checked = false);
+}
+
+
+/* ==========================================================
+   FUNCIÓN: addQuestion()
+   ----------------------------------------------------------
+   Limpia el formulario para que el usuario agregue una
+   nueva pregunta sin alterar las anteriores.
+   Se ejecuta al presionar el botón "➕ Agregar".
+   ========================================================== */
+function addQuestion() {
+  clearForm();
+  alert("🆕 Formulario listo para una nueva pregunta.");
+}
+
+
+/* ==========================================================
+   FUNCIÓN: uploadToGist()
+   ----------------------------------------------------------
+   Sube el JSON con las preguntas almacenadas en "questions"
+   directamente al backend /api/upload-file.js, que luego
+   crea un Gist público en GitHub.
+   Elementos involucrados:
+     - Arreglo global "questions"
+     - Prompt del nombre del archivo JSON
+   ========================================================== */
+async function uploadToGist() {
+  if (questions.length === 0) {
+    alert("⚠️ No hay preguntas para subir.");
     return;
   }
 
-  const blob = new Blob([content], { type: "application/json" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "preguntas.json";
-  link.click();
-}
+  // Solicitar nombre del archivo al usuario
+  const filename = prompt("📄 Escribe un nombre para el archivo JSON:", "preguntas_" + Date.now() + ".json");
+  if (!filename) return alert("❌ Operación cancelada.");
 
-/**
- * 🔹 uploadToGist()
- * Sube el JSON actual a GitHub Gist de forma pública.
- * Pide un nombre de archivo antes de subir.
- */
-async function uploadToGist() {
-  const status = document.getElementById("status");
-  status.textContent = "📤 Preparando subida a Gist...";
+  // Convertir preguntas a JSON legible
+  const content = JSON.stringify(questions, null, 2);
 
   try {
-    // Obtener el contenido del JSON
-    const content = document.getElementById("jsonOutput").value.trim();
-    if (!content) {
-      alert("No hay contenido JSON para subir.");
-      status.textContent = "⚠️ No hay contenido JSON.";
-      return;
-    }
-
-    // Pedir nombre de archivo
-    const filename = prompt("Ingresa un nombre para el archivo JSON:", "guia_estudio.json");
-    if (!filename) {
-      status.textContent = "❌ Subida cancelada por el usuario.";
-      return;
-    }
-
-    // Confirmar si se usa el nombre por defecto
-    if (filename === "guia_estudio.json") {
-      const confirmDefault = confirm(
-        "⚠️ Estás usando el nombre por defecto 'guia_estudio.json'.\n¿Deseas continuar?"
-      );
-      if (!confirmDefault) {
-        status.textContent = "🚫 Subida cancelada (nombre por defecto).";
-        return;
-      }
-    }
-
-    // Subir al endpoint API
-    status.textContent = "⏳ Subiendo archivo a GitHub Gist...";
     const response = await fetch("/api/upload-file", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content, filename }),
+      body: JSON.stringify({ content, filename })
     });
 
     const data = await response.json();
 
     if (response.ok) {
-      status.innerHTML = `✅ Archivo subido con éxito.<br>
-        🌐 <a href="${data.html_url}" target="_blank">${filename}</a>`;
+      alert(`✅ Gist creado correctamente:\n${data.html_url}`);
+      console.log("🌐 Gist URL:", data.html_url);
     } else {
+      alert(`❌ Error al crear el Gist: ${data.error || data.message}`);
       console.error(data);
-      status.textContent = `❌ Error al subir: ${data.message || "Desconocido"}`;
     }
-  } catch (error) {
-    console.error(error);
-    status.textContent = "💥 Error inesperado al subir el archivo.";
+  } catch (err) {
+    alert("⚠️ Error al conectar con el servidor.");
+    console.error(err);
   }
 }
 
-// Inicializar visibilidad correcta al cargar
-document.addEventListener("DOMContentLoaded", typeQuestion);
-</script>
+
+/* ==========================================================
+   EVENTOS PRINCIPALES
+   ----------------------------------------------------------
+   Se ejecutan cuando se cargan los botones en el DOM.
+   Vinculan las funciones anteriores con los botones:
+     - ➕ Agregar        → addQuestion()
+     - 💾 Guardar        → saveQuestion()
+     - ⬆️ Subir a Gist   → uploadToGist()
+   ========================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("addQuestion").addEventListener("click", addQuestion);
+  document.getElementById("uploadGist").addEventListener("click", uploadToGist);
+  const saveButton = document.querySelector(".actions button[onclick='saveQuestion()']");
+  if (saveButton) saveButton.addEventListener("click", saveQuestion);
+});
