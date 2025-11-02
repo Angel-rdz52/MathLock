@@ -1,78 +1,63 @@
-let questions = [];
-
-const typeSelect = document.getElementById("type");
-const optionsContainer = document.getElementById("optionsContainer");
-const preview = document.getElementById("jsonPreview");
-
-// 🔹 Cambiar tipo de pregunta
 function typeQuestion() {
   const typeSelect = document.getElementById("type");
   const optionsContainer = document.getElementById("optionsContainer");
+  const openAnswerContainer = document.getElementById("openAnswerContainer");
 
   if (typeSelect.value === "abierta") {
     optionsContainer.style.display = "none";
+    openAnswerContainer.style.display = "block";
   } else {
     optionsContainer.style.display = "block";
+    openAnswerContainer.style.display = "none";
   }
 }
 
+window.onload = () => {
+  typeQuestion(); // Estado inicial
 
-// 🔹 Agregar pregunta al JSON
-document.getElementById("saveQuestion").addEventListener("click", () => {
-  const questionText = document.getElementById("questionText").value.trim();
-  const difficulty = document.getElementById("difficulty").value;
-  const type = document.getElementById("type").value;
-  const fileName = document.getElementById("fileName").value || "guia_sin_nombre";
+  const addQuestionBtn = document.getElementById("addQuestion");
+  const output = document.getElementById("output");
+  const questions = [];
 
-  if (!questionText) {
-    alert("Por favor, escribe una pregunta.");
-    return;
-  }
+  addQuestionBtn.addEventListener("click", () => {
+    const type = document.getElementById("type").value;
+    const difficulty = document.getElementById("difficulty").value;
+    const question = document.getElementById("question").value.trim();
+    const jsonName = document.getElementById("jsonName").value.trim();
 
-  const newQuestion = {
-    question: questionText,
-    difficulty: difficulty,
-    type: type
-  };
-
-  if (type === "multiple") {
-    const optionInputs = Array.from(document.querySelectorAll(".optionInput"));
-    const options = optionInputs.map(o => o.value.trim());
-    const correct = document.querySelector('input[name="correctOption"]:checked');
-    const correctIndex = correct ? parseInt(correct.value) : -1;
-
-    if (options.some(o => o === "")) {
-      alert("Completa todas las opciones.");
-      return;
-    }
-    if (correctIndex === -1) {
-      alert("Selecciona la respuesta correcta.");
+    if (!question) {
+      alert("Por favor, escribe la pregunta.");
       return;
     }
 
-    newQuestion.options = options;
-    newQuestion.answer = options[correctIndex];
-  } else {
-    newQuestion.options = [];
-    newQuestion.answer = "";
-  }
+    let questionObj = { pregunta: question, dificultad: difficulty, tipo: type };
 
-  questions.push(newQuestion);
-  preview.textContent = JSON.stringify(questions, null, 2);
+    if (type === "multiple") {
+      const options = [
+        document.getElementById("option1").value,
+        document.getElementById("option2").value,
+        document.getElementById("option3").value,
+        document.getElementById("option4").value
+      ];
+      const correctOption = document.querySelector("input[name='correctOption']:checked");
 
-  // Limpia campos después de agregar
-  document.getElementById("questionText").value = "";
-  document.querySelectorAll(".optionInput").forEach(o => o.value = "");
-  document.querySelectorAll('input[name="correctOption"]').forEach(r => r.checked = false);
-});
+      if (!correctOption) {
+        alert("Selecciona la respuesta correcta.");
+        return;
+      }
 
-// 🔹 Botón "Nueva pregunta" → enfoca el campo
-document.getElementById("addQuestion").addEventListener("click", () => {
-  document.getElementById("questionText").focus();
-});
+      questionObj.opciones = options;
+      questionObj.correcta = parseInt(correctOption.value);
+    } else {
+      const openAnswer = document.getElementById("openAnswer").value.trim();
+      if (!openAnswer) {
+        alert("Escribe la respuesta correcta para la pregunta abierta.");
+        return;
+      }
+      questionObj.respuesta = openAnswer;
+    }
 
-// 🔹 Simulación de subida a Gist (pendiente de conectar)
-document.getElementById("uploadGist").addEventListener("click", () => {
-  const fileName = document.getElementById("fileName").value || "guia_sin_nombre";
-  alert(`Simulación: se subiría el archivo ${fileName}.json con ${questions.length} preguntas.`);
-});
+    questions.push(questionObj);
+    output.textContent = JSON.stringify({ nombre: jsonName, preguntas: questions }, null, 2);
+  });
+};
