@@ -25,12 +25,21 @@ window.onload = () => {
     const question = document.getElementById("question").value.trim();
     const jsonName = document.getElementById("jsonName").value.trim();
 
-    if (!question) {
-      alert("Por favor, escribe la pregunta.");
+    if (!jsonName) {
+      alert("Agrega un nombre para el archivo JSON.");
       return;
     }
 
-    let questionObj = { pregunta: question, dificultad: difficulty, tipo: type };
+    if (!question) {
+      alert("Escribe la pregunta antes de continuar.");
+      return;
+    }
+
+    const questionObj = {
+      pregunta: question,
+      dificultad: difficulty,
+      tipo: type,
+    };
 
     if (type === "multiple") {
       const options = [
@@ -39,10 +48,10 @@ window.onload = () => {
         document.getElementById("option3").value,
         document.getElementById("option4").value
       ];
-      const correctOption = document.querySelector("input[name='correctOption']:checked");
 
+      const correctOption = document.querySelector("input[name='correctOption']:checked");
       if (!correctOption) {
-        alert("Selecciona la respuesta correcta.");
+        alert("Selecciona una respuesta correcta.");
         return;
       }
 
@@ -51,7 +60,7 @@ window.onload = () => {
     } else {
       const openAnswer = document.getElementById("openAnswer").value.trim();
       if (!openAnswer) {
-        alert("Escribe la respuesta correcta para la pregunta abierta.");
+        alert("Agrega la respuesta correcta.");
         return;
       }
       questionObj.respuesta = openAnswer;
