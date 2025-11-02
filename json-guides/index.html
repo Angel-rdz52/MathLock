@@ -6,24 +6,69 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <header>
     <h1>🧩 Generador de Guías JSON</h1>
     <div class="toolbar">
-      <button id="addQuestion">➕ Agregar pregunta</button>
+      <button id="addQuestion">➕ Nueva pregunta</button>
       <button id="uploadGist">☁️ Subir a Gist</button>
     </div>
   </header>
 
-  <div class="container">
-    <label>Nombre del archivo JSON:</label>
-    <input type="text" id="fileName" placeholder="Ej: guia_matematicas">
+  <main class="container">
+    <label for="fileName">📘 Nombre del archivo JSON:</label>
+    <input type="text" id="fileName" placeholder="Ejemplo: guia_matematicas">
 
-    <div id="questionsContainer"></div>
+    <section id="formSection">
+      <div class="row">
+        <div style="flex:1;">
+          <label for="difficulty">Dificultad:</label>
+          <select id="difficulty">
+            <option value="fácil">Fácil</option>
+            <option value="media">Media</option>
+            <option value="difícil">Difícil</option>
+          </select>
+        </div>
+
+        <div style="flex:1;">
+          <label for="type">Tipo de pregunta:</label>
+          <select id="type">
+            <option value="multiple">Opción múltiple</option>
+            <option value="abierta">Respuesta abierta</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="questionText">Pregunta:</label>
+      <textarea id="questionText" rows="2" placeholder="Escribe la pregunta aquí..."></textarea>
+
+      <div id="optionsContainer">
+        <label>Opciones:</label>
+        <div class="optionRow">
+          <input type="radio" name="correctOption" value="0">
+          <input type="text" class="optionInput" placeholder="Opción 1">
+        </div>
+        <div class="optionRow">
+          <input type="radio" name="correctOption" value="1">
+          <input type="text" class="optionInput" placeholder="Opción 2">
+        </div>
+        <div class="optionRow">
+          <input type="radio" name="correctOption" value="2">
+          <input type="text" class="optionInput" placeholder="Opción 3">
+        </div>
+        <div class="optionRow">
+          <input type="radio" name="correctOption" value="3">
+          <input type="text" class="optionInput" placeholder="Opción 4">
+        </div>
+      </div>
+    </section>
+
+    <div class="center">
+      <button id="saveQuestion">💾 Agregar al JSON</button>
+    </div>
 
     <h3>📄 Vista previa JSON:</h3>
-    <pre id="jsonPreview">{}</pre>
-  </div>
+    <pre id="jsonPreview">[]</pre>
+  </main>
 
   <script src="script.js"></script>
 </body>
