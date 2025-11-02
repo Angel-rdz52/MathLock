@@ -1,61 +1,74 @@
 let questions = [];
 
-document.getElementById('type').addEventListener('change', (e) => {
-  const container = document.getElementById('options-container');
-  container.style.display = e.target.value === 'multiple' ? 'block' : 'none';
-});
+document.addEventListener("DOMContentLoaded", () => {
+  const addBtn = document.getElementById("addQuestionBtn");
+  const uploadBtn = document.getElementById("uploadGistBtn");
+  const questionType = document.getElementById("questionType");
+  const optionsContainer = document.getElementById("optionsContainer");
 
-document.getElementById('addQuestion').addEventListener('click', () => {
-  const question = document.getElementById('question').value.trim();
-  const type = document.getElementById('type').value;
-  const answer = document.getElementById('answer').value.trim();
-  const difficulty = document.getElementById('difficulty').value;
-  const options = Array.from(document.querySelectorAll('.option')).map(opt => opt.value.trim()).filter(o => o);
+  // Mostrar u ocultar opciones según tipo
+  questionType.addEventListener("change", () => {
+    if (questionType.value === "abierta") {
+      optionsContainer.style.display = "none";
+    } else {
+      optionsContainer.style.display = "block";
+    }
+  });
 
-  if (!question || !answer) {
-    alert("Por favor completa la pregunta y la respuesta.");
-    return;
-  }
+  // Agregar pregunta
+  addBtn.addEventListener("click", () => {
+    const difficulty = document.getElementById("difficulty").value;
+    const type = questionType.value;
+    const question = document.getElementById("questionText").value.trim();
 
-  let entry = { question, answer, difficulty };
-
-  if (type === 'multiple') {
-    if (options.length < 2) {
-      alert("Agrega al menos dos opciones.");
+    if (!question) {
+      alert("Escribe la pregunta antes de continuar");
       return;
     }
-    entry.options = options;
-  }
 
-  questions.push(entry);
-  document.getElementById('output').textContent = JSON.stringify(questions, null, 2);
-  clearInputs();
+    let questionObj = { dificultad: difficulty, tipo: type, pregunta: question };
+
+    if (type === "opcion") {
+      const options = Array.from(document.querySelectorAll("#optionsContainer .option input[type='text']")).map(i => i.value.trim());
+      const correctIndex = document.querySelector("input[name='correctOption']:checked");
+
+      if (options.some(o => !o)) {
+        alert("Completa todas las opciones");
+        return;
+      }
+
+      if (!correctIndex) {
+        alert("Selecciona la respuesta correcta");
+        return;
+      }
+
+      questionObj.opciones = options;
+      questionObj.correcta = options[correctIndex.value];
+    } else {
+      questionObj.respuesta = "Respuesta abierta";
+    }
+
+    questions.push(questionObj);
+    renderJSON();
+    resetForm();
+  });
+
+  uploadBtn.addEventListener("click", uploadToGist);
 });
 
-function clearInputs() {
-  document.getElementById('question').value = '';
-  document.getElementById('answer').value = '';
-  document.querySelectorAll('.option').forEach(opt => opt.value = '');
+function renderJSON() {
+  const jsonPreview = document.getElementById("jsonPreview");
+  jsonPreview.textContent = JSON.stringify(questions, null, 2);
 }
 
-document.getElementById('generateJSON').addEventListener('click', () => {
+function resetForm() {
+  document.getElementById("questionText").value = "";
+  document.querySelectorAll("#optionsContainer .option input[type='text']").forEach(i => i.value = "");
+  document.querySelectorAll("input[name='correctOption']").forEach(r => r.checked = false);
+}
+
+async function uploadToGist() {
   const jsonContent = JSON.stringify(questions, null, 2);
-  const blob = new Blob([jsonContent], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'guia-estudio.json';
-  a.click();
-});
-
-document.getElementById('uploadGist').addEventListener('click', async () => {
-  if (questions.length === 0) {
-    alert("Primero agrega al menos una pregunta.");
-    return;
-  }
-
-  const jsonContent = JSON.stringify(questions, null, 2);
-
   const response = await fetch('/api/upload-file', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -65,14 +78,10 @@ document.getElementById('uploadGist').addEventListener('click', async () => {
     })
   });
 
-  try {
-    const data = await response.json();
-    if (data.html_url) {
-      alert(`✅ Gist creado con éxito:\n${data.html_url}`);
-    } else {
-      alert(`❌ Error al crear el Gist:\n${JSON.stringify(data)}`);
-    }
-  } catch {
-    alert("❌ Error inesperado al subir el archivo.");
+  const data = await response.json();
+  if (data.html_url) {
+    alert(`✅ Gist creado: ${data.html_url}`);
+  } else {
+    alert(`❌ Error al crear Gist: ${JSON.stringify(data)}`);
   }
-});
+}
