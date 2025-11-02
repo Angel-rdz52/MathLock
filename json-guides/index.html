@@ -1,70 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generador de Guías JSON</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor de Preguntas - MathLock</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>📘 Generador de Guías JSON</h1>
-    <div class="toolbar">
-      <button id="addQuestion">➕ Agregar</button>
-      <button id="uploadGist">⬆️ Subir a Gist</button>
-    </div>
+  <header class="app-header">
+    <h1>📘 Editor de Preguntas - MathLock</h1>
   </header>
 
-  <main>
-    <div class="card">
-      <form id="questionForm">
+  <main class="container">
+    <section class="card">
+      <h2>Nueva Pregunta</h2>
+
+      <div class="inline-fields">
         <div class="form-row">
-          <label for="jsonName">Nombre del archivo:</label>
-          <input type="text" id="jsonName" placeholder="ej. bloque1_matematicas" />
-        </div>
-
-        <div class="form-row horizontal">
-          <div class="half">
-            <label for="difficulty">Dificultad:</label>
-            <select id="difficulty">
-              <option value="1">Fácil</option>
-              <option value="2">Medio</option>
-              <option value="3">Difícil</option>
-            </select>
-          </div>
-
-          <div class="half">
-            <label for="type">Tipo:</label>
-            <select id="type" onchange="typeQuestion()">
-              <option value="multiple">Opción múltiple</option>
-              <option value="abierta">Abierta</option>
-            </select>
-          </div>
+          <label for="difficulty">Dificultad:</label>
+          <select id="difficulty">
+            <option value="fácil">Fácil</option>
+            <option value="media">Media</option>
+            <option value="difícil">Difícil</option>
+          </select>
         </div>
 
         <div class="form-row">
-          <label for="question">Pregunta:</label>
-          <textarea id="question" placeholder="Escribe la pregunta aquí..."></textarea>
+          <label for="type">Tipo de pregunta:</label>
+          <select id="type" onchange="typeQuestion()">
+            <option value="multiple">Opción múltiple</option>
+            <option value="abierta">Abierta</option>
+          </select>
         </div>
+      </div>
 
-        <div id="optionsContainer">
-          <label>Opciones:</label>
-          <div class="option"><input type="radio" name="correctOption" value="1"><input type="text" id="option1" placeholder="Opción 1"></div>
-          <div class="option"><input type="radio" name="correctOption" value="2"><input type="text" id="option2" placeholder="Opción 2"></div>
-          <div class="option"><input type="radio" name="correctOption" value="3"><input type="text" id="option3" placeholder="Opción 3"></div>
-          <div class="option"><input type="radio" name="correctOption" value="4"><input type="text" id="option4" placeholder="Opción 4"></div>
+      <div class="form-row">
+        <label for="question">Pregunta:</label>
+        <textarea id="question" rows="3" placeholder="Escribe aquí la pregunta..."></textarea>
+      </div>
+
+      <div id="options-container">
+        <label>Opciones:</label>
+        <div class="option">
+          <input type="radio" name="correct" value="0">
+          <input type="text" placeholder="Opción 1">
         </div>
-
-        <div id="openAnswerContainer" class="form-row" style="display:none;">
-          <label for="openAnswer">Respuesta correcta:</label>
-          <input type="text" id="openAnswer" placeholder="Escribe la respuesta correcta" />
+        <div class="option">
+          <input type="radio" name="correct" value="1">
+          <input type="text" placeholder="Opción 2">
         </div>
-      </form>
-    </div>
+        <div class="option">
+          <input type="radio" name="correct" value="2">
+          <input type="text" placeholder="Opción 3">
+        </div>
+        <div class="option">
+          <input type="radio" name="correct" value="3">
+          <input type="text" placeholder="Opción 4">
+        </div>
+      </div>
 
-    <h2>📄 Vista previa del JSON:</h2>
-    <pre id="output"></pre>
+      <div id="open-answer-container" class="hidden">
+        <label for="open-answer">Respuesta esperada:</label>
+        <input type="text" id="open-answer" placeholder="Escribe la respuesta correcta...">
+      </div>
+
+      <div class="actions">
+        <button onclick="saveQuestion()">💾 Guardar</button>
+        <button onclick="clearForm()">🧹 Limpiar</button>
+      </div>
+    </section>
   </main>
+
+  <footer>
+    <p>© 2025 MathLock | Herramienta educativa</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
