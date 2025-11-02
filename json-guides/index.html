@@ -19,6 +19,11 @@
     <section class="card">
       <h2>Nueva Pregunta</h2>
 
+      <div class="form-row">
+        <label for="json-name">Nombre del archivo JSON:</label>
+        <input type="text" id="json-name" placeholder="Ejemplo: preguntas_bloque1">
+      </div>
+
       <div class="inline-fields">
         <div class="form-row">
           <label for="difficulty">Dificultad:</label>
@@ -64,13 +69,8 @@
       </div>
 
       <div id="open-answer-container" class="hidden">
-        <label for="open-answer">Respuesta esperada:</label>
+        <label for="open-answer">Respuesta correcta:</label>
         <input type="text" id="open-answer" placeholder="Escribe la respuesta correcta...">
-      </div>
-
-      <div class="form-row">
-        <label for="json-name">Nombre del archivo JSON:</label>
-        <input type="text" id="json-name" placeholder="Ejemplo: preguntas_bloque1">
       </div>
 
       <div class="actions">
