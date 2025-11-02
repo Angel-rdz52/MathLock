@@ -113,15 +113,10 @@ function updatePreview() {
 // FUNCIÓN: exportar preguntas a archivo
 // ==============================
 async function uploadToGist() {
-  if (questions.length === 0) {
-    alert("⚠️ No hay preguntas para subir.");
-    return;
-  }
-
-  const filename = prompt("Nombre del archivo JSON:", "preguntas_bloque1.json");
+  const filename = prompt("Escribe un nombre para tu archivo JSON:", "preguntas.json");
   if (!filename) return;
 
-  const content = JSON.stringify(questions, null, 2);
+  const content = localStorage.getItem("preguntasJSON") || "{}";
 
   try {
     const response = await fetch("/api/upload-file", {
@@ -130,28 +125,21 @@ async function uploadToGist() {
       body: JSON.stringify({ filename, content })
     });
 
-    let data;
-    try {
-      data = await response.json();
-    } catch (err) {
-      const text = await response.text();
-      console.error("⚠️ Respuesta no-JSON del servidor:", text);
-      throw new Error("El servidor devolvió una respuesta no válida.");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Error al subir:", errorText);
+      alert("Error al subir: " + errorText);
+      return;
     }
 
-    if (response.ok) {
-      alert(`✅ Gist creado correctamente:\n${data.html_url}`);
-      console.log("📎 URL del Gist:", data.html_url);
-    } else {
-      alert(`❌ Error al subir: ${data.message || "Error desconocido"}`);
-      console.error("Detalles del error:", data);
-    }
+    const data = await response.json();
+    console.log("✅ Gist creado:", data);
+    alert("Archivo subido exitosamente a Gist:\n" + data.html_url);
   } catch (err) {
-    alert("⚠️ Error al conectar con el servidor. Revisa la consola.");
     console.error("Error general:", err);
+    alert("⚠️ Error al conectar con el servidor. Revisa la consola.");
   }
 }
-
 
 // ==============================
 // FUNCIÓN: agregar pregunta vacía (botón ➕)
