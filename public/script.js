@@ -1,7 +1,3 @@
-// script.js - Editor de Preguntas MathLock
-// ---------------------------------------
-// Controla la creación, visualización y exportación de preguntas en formato JSON.
-
 // ==============================
 // VARIABLES GLOBALES
 // ==============================
@@ -17,7 +13,6 @@ function typeQuestion() {
   const openAnswer = document.getElementById("open-answer-container");
 
   currentType = select.value;
-
   if (currentType === "abierta") {
     optionsContainer.classList.add("hidden");
     openAnswer.classList.remove("hidden");
@@ -99,56 +94,32 @@ function clearForm(resetType = true) {
 // FUNCIÓN: actualizar vista JSON
 // ==============================
 function updatePreview() {
-  const preview = document.getElementById("json-preview");
-  preview.textContent = JSON.stringify(questions, null, 2);
+  document.getElementById("json-preview").textContent = JSON.stringify(questions, null, 2);
 }
 
 // ==============================
-// FUNCIÓN: exportar preguntas a archivo
+// FUNCIÓN: descargar JSON localmente
 // ==============================
-async function uploadToGist() {
+function downloadJSON() {
   if (questions.length === 0) {
-    alert("⚠️ No hay preguntas para subir.");
+    alert("⚠️ No hay preguntas para descargar.");
     return;
   }
 
-  const filename = prompt("Escribe un nombre para tu archivo JSON:", "preguntas.json");
-  if (!filename) return;
-
-  const content = JSON.stringify(questions, null, 2);
-
-  try {
-    const response = await fetch("/api/upload-file", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename, content })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ Error al subir (server):", errorText);
-      alert("Error al subir: " + errorText);
-      return;
-    }
-
-    const data = await response.json();
-    console.log("✅ Gist creado:", data);
-    alert("Archivo subido exitosamente a Gist:\n" + data.html_url);
-  } catch (err) {
-    console.error("Error red/servidor:", err);
-    alert("⚠️ Error al conectar con el servidor. Revisa la consola (F12).");
-  }
+  const blob = new Blob([JSON.stringify(questions, null, 2)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "preguntas_mathlock.json";
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
-
 
 // ==============================
 // EVENTOS AL CARGAR LA PÁGINA
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
   typeQuestion();
-
-  document.getElementById("addQuestion").addEventListener("click", addQuestion);
-  document.getElementById("uploadGist").addEventListener("click", uploadToGist);
   document.getElementById("saveQuestion").addEventListener("click", saveQuestion);
   document.getElementById("clearForm").addEventListener("click", () => clearForm());
+  document.getElementById("downloadJSON").addEventListener("click", downloadJSON);
 });
