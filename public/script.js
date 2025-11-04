@@ -1,9 +1,6 @@
-// =========================================================
 // script.js - Editor de Preguntas MathLock
-// ---------------------------------------------------------
-// Controla la creación, vista previa y subida de preguntas
-// a un Gist público en GitHub a través de la API /api/upload-file
-// =========================================================
+// ---------------------------------------
+// Controla la creación, visualización y exportación de preguntas en formato JSON.
 
 // ==============================
 // VARIABLES GLOBALES
@@ -12,7 +9,7 @@ let questions = [];
 let currentType = "multiple";
 
 // ==============================
-// FUNCIÓN: Cambia entre tipo abierta o múltiple
+// FUNCIÓN: cambiar tipo de pregunta
 // ==============================
 function typeQuestion() {
   const select = document.getElementById("type");
@@ -31,7 +28,7 @@ function typeQuestion() {
 }
 
 // ==============================
-// FUNCIÓN: Guarda una nueva pregunta
+// FUNCIÓN: guardar pregunta
 // ==============================
 function saveQuestion() {
   const difficulty = document.getElementById("difficulty").value;
@@ -42,10 +39,10 @@ function saveQuestion() {
     return;
   }
 
-  const questionObj = {
+  let questionObj = {
     dificultad: difficulty,
     tipo: currentType,
-    pregunta: questionText
+    pregunta: questionText,
   };
 
   if (currentType === "multiple") {
@@ -80,7 +77,7 @@ function saveQuestion() {
 }
 
 // ==============================
-// FUNCIÓN: Limpia el formulario
+// FUNCIÓN: limpiar formulario
 // ==============================
 function clearForm(resetType = true) {
   document.getElementById("question").value = "";
@@ -99,7 +96,7 @@ function clearForm(resetType = true) {
 }
 
 // ==============================
-// FUNCIÓN: Actualiza vista previa del JSON
+// FUNCIÓN: actualizar vista JSON
 // ==============================
 function updatePreview() {
   const preview = document.getElementById("json-preview");
@@ -107,7 +104,7 @@ function updatePreview() {
 }
 
 // ==============================
-// FUNCIÓN: Subir a Gist público
+// FUNCIÓN: exportar preguntas a archivo
 // ==============================
 async function uploadToGist() {
   if (questions.length === 0) {
@@ -115,7 +112,7 @@ async function uploadToGist() {
     return;
   }
 
-  const filename = prompt("📄 Escribe un nombre para tu archivo JSON:", "preguntas.json");
+  const filename = prompt("Escribe un nombre para tu archivo JSON:", "preguntas.json");
   if (!filename) return;
 
   const content = JSON.stringify(questions, null, 2);
@@ -127,26 +124,24 @@ async function uploadToGist() {
       body: JSON.stringify({ filename, content })
     });
 
-    // Mostrar error de servidor legible
     if (!response.ok) {
       const errorText = await response.text();
       console.error("❌ Error al subir (server):", errorText);
-      alert("❌ Error al subir: " + errorText);
+      alert("Error al subir: " + errorText);
       return;
     }
 
-    // Éxito: mostrar enlace
     const data = await response.json();
-    alert("✅ Archivo subido a Gist:\n" + data.html_url);
     console.log("✅ Gist creado:", data);
+    alert("Archivo subido exitosamente a Gist:\n" + data.html_url);
   } catch (err) {
-    console.error("⚠️ Error al conectar con el servidor:", err);
-    alert("⚠️ Error al conectar con el servidor. Revisa consola (F12).");
+    console.error("Error red/servidor:", err);
+    alert("⚠️ Error al conectar con el servidor. Revisa la consola (F12).");
   }
 }
 
 // ==============================
-// FUNCIÓN: Prepara nueva pregunta
+// FUNCIÓN: agregar pregunta vacía (botón ➕)
 // ==============================
 function addQuestion() {
   clearForm();
@@ -154,17 +149,13 @@ function addQuestion() {
 }
 
 // ==============================
-// EVENTOS PRINCIPALES
+// EVENTOS AL CARGAR LA PÁGINA
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
   typeQuestion();
 
   document.getElementById("addQuestion").addEventListener("click", addQuestion);
   document.getElementById("uploadGist").addEventListener("click", uploadToGist);
-  document
-    .querySelector("button[onclick='saveQuestion()']")
-    .addEventListener("click", saveQuestion);
-  document
-    .querySelector("button[onclick='clearForm()']")
-    .addEventListener("click", () => clearForm());
+  document.getElementById("saveQuestion").addEventListener("click", saveQuestion);
+  document.getElementById("clearForm").addEventListener("click", () => clearForm());
 });
