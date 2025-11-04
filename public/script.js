@@ -16,15 +16,12 @@ function typeQuestion() {
   const optionsContainer = document.getElementById("options-container");
   const openAnswer = document.getElementById("open-answer-container");
 
-  // Actualiza el tipo actual
   currentType = select.value;
 
-  // Si es pregunta abierta, oculta opciones y muestra campo de texto
   if (currentType === "abierta") {
     optionsContainer.classList.add("hidden");
     openAnswer.classList.remove("hidden");
   } else {
-    // Si es múltiple, hace lo contrario
     optionsContainer.classList.remove("hidden");
     openAnswer.classList.add("hidden");
   }
@@ -48,7 +45,6 @@ function saveQuestion() {
     pregunta: questionText,
   };
 
-  // Si la pregunta es múltiple, toma las opciones
   if (currentType === "multiple") {
     const options = Array.from(
       document.querySelectorAll("#options-container .option input[type='text']")
@@ -66,7 +62,6 @@ function saveQuestion() {
     questionObj.opciones = options;
     questionObj.correcta = parseInt(correct.value);
   } else {
-    // Si la pregunta es abierta
     const openAnswer = document.getElementById("open-answer").value.trim();
     if (!openAnswer) {
       alert("⚠️ Escribe la respuesta correcta.");
@@ -75,7 +70,6 @@ function saveQuestion() {
     questionObj.respuesta = openAnswer;
   }
 
-  // Agregar al arreglo y actualizar vista
   questions.push(questionObj);
   updatePreview();
   clearForm(false);
@@ -110,7 +104,7 @@ function updatePreview() {
 }
 
 // ==============================
-// FUNCIÓN: exportar preguntas a archivo
+// FUNCIÓN: exportar preguntas a archivo (subir a Vercel API)
 // ==============================
 async function uploadToGist() {
   if (questions.length === 0) {
@@ -121,36 +115,42 @@ async function uploadToGist() {
   const filename = prompt("Escribe un nombre para tu archivo JSON:", "preguntas.json");
   if (!filename) return;
 
-  // contenido real a subir
   const content = JSON.stringify(questions, null, 2);
 
   try {
     const response = await fetch("/api/upload-file", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename, content })
+      body: JSON.stringify({ filename, content }),
     });
 
-    // leer como texto si no OK (para mostrar error legible)
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ Error al subir (server):", errorText);
-      alert("Error al subir: " + errorText);
+    // Si la ruta no existe o el método es incorrecto
+    if (response.status === 404) {
+      alert("❌ No se encontró la ruta en el servidor (/api/upload-file).");
+      console.error("Ruta no encontrada: /api/upload-file");
       return;
     }
 
-    // response.ok -> parsear JSON
+    // Si hay otro error (por ejemplo, Gist falló)
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Error del servidor:", errorText);
+      alert("Error al subir:\n" + errorText);
+      return;
+    }
+
+    // Si todo va bien, mostramos el enlace del Gist
     const data = await response.json();
     console.log("✅ Gist creado:", data);
-    alert("Archivo subido exitosamente a Gist:\n" + data.html_url);
+    alert("✅ Archivo subido exitosamente:\n" + data.html_url);
   } catch (err) {
-    console.error("Error red/servidor:", err);
-    alert("⚠️ Error al conectar con el servidor. Revisa la consola (F12).");
+    console.error("⚠️ Error de conexión o CORS:", err);
+    alert("⚠️ No se pudo conectar con el servidor. Revisa la consola (F12).");
   }
 }
 
 // ==============================
-// FUNCIÓN: agregar pregunta vacía (botón ➕)
+// FUNCIÓN: agregar pregunta vacía
 // ==============================
 function addQuestion() {
   clearForm();
@@ -161,14 +161,9 @@ function addQuestion() {
 // EVENTOS AL CARGAR LA PÁGINA
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
-  // Asegurar que todo esté sincronizado
   typeQuestion();
-
   document.getElementById("addQuestion").addEventListener("click", addQuestion);
   document.getElementById("uploadGist").addEventListener("click", uploadToGist);
-  document.getElementById("saveQuestion").addEventListener("click", saveQuestion); // ✅ nuevo
-  document.getElementById("clearForm").addEventListener("click", () => clearForm()); // ✅ nuevo
-
-  // El botón de guardar usa el atributo onclick, pero podrías hacerlo así también:
-  // document.querySelector(".actions button[onclick='saveQuestion()']").addEventListener("click", saveQuestion);
+  document.getElementById("saveQuestion").addEventListener("click", saveQuestion);
+  document.getElementById("clearForm").addEventListener("click", () => clearForm());
 });
