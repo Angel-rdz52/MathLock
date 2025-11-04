@@ -140,13 +140,6 @@ async function uploadToGist() {
   }
 }
 
-// ==============================
-// FUNCIÓN: agregar pregunta vacía (botón ➕)
-// ==============================
-function addQuestion() {
-  clearForm();
-  alert("📝 Nueva pregunta lista para editar.");
-}
 
 // ==============================
 // EVENTOS AL CARGAR LA PÁGINA
