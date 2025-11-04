@@ -1,6 +1,9 @@
+// =========================================================
 // script.js - Editor de Preguntas MathLock
-// ---------------------------------------
-// Controla la creación, visualización y exportación de preguntas en formato JSON.
+// ---------------------------------------------------------
+// Controla la creación, vista previa y subida de preguntas
+// a un Gist público en GitHub a través de la API /api/upload-file
+// =========================================================
 
 // ==============================
 // VARIABLES GLOBALES
@@ -9,7 +12,7 @@ let questions = [];
 let currentType = "multiple";
 
 // ==============================
-// FUNCIÓN: cambiar tipo de pregunta
+// FUNCIÓN: Cambia entre tipo abierta o múltiple
 // ==============================
 function typeQuestion() {
   const select = document.getElementById("type");
@@ -28,7 +31,7 @@ function typeQuestion() {
 }
 
 // ==============================
-// FUNCIÓN: guardar pregunta
+// FUNCIÓN: Guarda una nueva pregunta
 // ==============================
 function saveQuestion() {
   const difficulty = document.getElementById("difficulty").value;
@@ -39,10 +42,10 @@ function saveQuestion() {
     return;
   }
 
-  let questionObj = {
+  const questionObj = {
     dificultad: difficulty,
     tipo: currentType,
-    pregunta: questionText,
+    pregunta: questionText
   };
 
   if (currentType === "multiple") {
@@ -77,7 +80,7 @@ function saveQuestion() {
 }
 
 // ==============================
-// FUNCIÓN: limpiar formulario
+// FUNCIÓN: Limpia el formulario
 // ==============================
 function clearForm(resetType = true) {
   document.getElementById("question").value = "";
@@ -96,7 +99,7 @@ function clearForm(resetType = true) {
 }
 
 // ==============================
-// FUNCIÓN: actualizar vista JSON
+// FUNCIÓN: Actualiza vista previa del JSON
 // ==============================
 function updatePreview() {
   const preview = document.getElementById("json-preview");
@@ -104,7 +107,7 @@ function updatePreview() {
 }
 
 // ==============================
-// FUNCIÓN: exportar preguntas a archivo (subir a Vercel API)
+// FUNCIÓN: Subir a Gist público
 // ==============================
 async function uploadToGist() {
   if (questions.length === 0) {
@@ -112,7 +115,7 @@ async function uploadToGist() {
     return;
   }
 
-  const filename = prompt("Escribe un nombre para tu archivo JSON:", "preguntas.json");
+  const filename = prompt("📄 Escribe un nombre para tu archivo JSON:", "preguntas.json");
   if (!filename) return;
 
   const content = JSON.stringify(questions, null, 2);
@@ -121,36 +124,29 @@ async function uploadToGist() {
     const response = await fetch("/api/upload-file", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename, content }),
+      body: JSON.stringify({ filename, content })
     });
 
-    // Si la ruta no existe o el método es incorrecto
-    if (response.status === 404) {
-      alert("❌ No se encontró la ruta en el servidor (/api/upload-file).");
-      console.error("Ruta no encontrada: /api/upload-file");
-      return;
-    }
-
-    // Si hay otro error (por ejemplo, Gist falló)
+    // Mostrar error de servidor legible
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ Error del servidor:", errorText);
-      alert("Error al subir:\n" + errorText);
+      console.error("❌ Error al subir (server):", errorText);
+      alert("❌ Error al subir: " + errorText);
       return;
     }
 
-    // Si todo va bien, mostramos el enlace del Gist
+    // Éxito: mostrar enlace
     const data = await response.json();
+    alert("✅ Archivo subido a Gist:\n" + data.html_url);
     console.log("✅ Gist creado:", data);
-    alert("✅ Archivo subido exitosamente:\n" + data.html_url);
   } catch (err) {
-    console.error("⚠️ Error de conexión o CORS:", err);
-    alert("⚠️ No se pudo conectar con el servidor. Revisa la consola (F12).");
+    console.error("⚠️ Error al conectar con el servidor:", err);
+    alert("⚠️ Error al conectar con el servidor. Revisa consola (F12).");
   }
 }
 
 // ==============================
-// FUNCIÓN: agregar pregunta vacía
+// FUNCIÓN: Prepara nueva pregunta
 // ==============================
 function addQuestion() {
   clearForm();
@@ -158,12 +154,17 @@ function addQuestion() {
 }
 
 // ==============================
-// EVENTOS AL CARGAR LA PÁGINA
+// EVENTOS PRINCIPALES
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
   typeQuestion();
+
   document.getElementById("addQuestion").addEventListener("click", addQuestion);
   document.getElementById("uploadGist").addEventListener("click", uploadToGist);
-  document.getElementById("saveQuestion").addEventListener("click", saveQuestion);
-  document.getElementById("clearForm").addEventListener("click", () => clearForm());
+  document
+    .querySelector("button[onclick='saveQuestion()']")
+    .addEventListener("click", saveQuestion);
+  document
+    .querySelector("button[onclick='clearForm()']")
+    .addEventListener("click", () => clearForm());
 });
