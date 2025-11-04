@@ -113,10 +113,16 @@ function updatePreview() {
 // FUNCIÓN: exportar preguntas a archivo
 // ==============================
 async function uploadToGist() {
+  if (questions.length === 0) {
+    alert("⚠️ No hay preguntas para subir.");
+    return;
+  }
+
   const filename = prompt("Escribe un nombre para tu archivo JSON:", "preguntas.json");
   if (!filename) return;
 
-  const content = localStorage.getItem("preguntasJSON") || "{}";
+  // contenido real a subir
+  const content = JSON.stringify(questions, null, 2);
 
   try {
     const response = await fetch("/api/upload-file", {
@@ -125,19 +131,21 @@ async function uploadToGist() {
       body: JSON.stringify({ filename, content })
     });
 
+    // leer como texto si no OK (para mostrar error legible)
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ Error al subir:", errorText);
+      console.error("❌ Error al subir (server):", errorText);
       alert("Error al subir: " + errorText);
       return;
     }
 
+    // response.ok -> parsear JSON
     const data = await response.json();
     console.log("✅ Gist creado:", data);
     alert("Archivo subido exitosamente a Gist:\n" + data.html_url);
   } catch (err) {
-    console.error("Error general:", err);
-    alert("⚠️ Error al conectar con el servidor. Revisa la consola.");
+    console.error("Error red/servidor:", err);
+    alert("⚠️ Error al conectar con el servidor. Revisa la consola (F12).");
   }
 }
 
