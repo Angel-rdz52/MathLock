@@ -1,0 +1,8 @@
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sin políticas especiales (no bloqueo de pantalla, no borrado remoto, etc.):
+         solo se usa para que Android bloquee el botón "Desinstalar" mientras
+         esté activo, y para poder mostrar un aviso propio al desactivarlo. -->
+    <uses-policies>
+    </uses-policies>
+</device-admin>
+
