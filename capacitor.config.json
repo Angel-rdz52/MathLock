@@ -1,0 +1,8 @@
+{
+  "appId": "com.mathlock.app",
+  "appName": "MathLock",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
