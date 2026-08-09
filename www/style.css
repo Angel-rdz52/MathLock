@@ -95,7 +95,32 @@ body {
 }
 .answer-input:focus { outline: none; border-color: var(--amber); }
 
-/* ===== Nodos de la ruta de aprendizaje ===== */
+/* ===== Acordeón de etapas (ruta de aprendizaje) ===== */
+.stage-card {
+    border: 1px solid var(--grid-line);
+    border-radius: 1rem;
+    background: var(--panel-raised);
+    margin-bottom: 0.6rem;
+    overflow: hidden;
+}
+.stage-card > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.85rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem;
+}
+.stage-card > summary::-webkit-details-marker { display: none; }
+.stage-chevron { transition: transform 0.2s ease; color: var(--chalk-dim); flex-shrink: 0; }
+.stage-card[open] .stage-chevron { transform: rotate(90deg); }
+.stage-card[open] > summary { border-bottom: 1px solid var(--grid-line); }
+.stage-progress-bar { height: 4px; border-radius: 2px; background: var(--locked); overflow: hidden; margin-top: 0.35rem; }
+.stage-progress-fill { height: 100%; background: var(--teal); border-radius: 2px; }
+.stage-body { padding: 0.9rem 1rem; }
+.stage-card.stage-locked > summary { opacity: 0.55; }
+.stage-card.stage-locked { background: transparent; border-style: dashed; }
+
+
 .skill-node {
     width: 3rem; height: 3rem; border-radius: 999px;
     display: flex; align-items: center; justify-content: center;
@@ -125,4 +150,4 @@ body {
 .btn-secondary {
     background: transparent; color: var(--chalk-dim); font-weight: 600;
     border: 2px solid var(--grid-line); border-radius: 0.9rem; padding: 0.85rem; text-align: center;
-}
+                          }
