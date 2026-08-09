@@ -49,4 +49,3 @@ python3 scripts/patch_gradle_kotlin.py
 echo ""
 echo "Listo. Ahora podés compilar con:"
 echo "  cd android && ./gradlew assembleDebug"
-
