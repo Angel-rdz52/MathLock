@@ -87,6 +87,9 @@ function renderDiagQuestion() {
     const q = MathLock.Diagnostic.siguientePregunta(diagSesion);
     if (!q) return finalizarDiagnostico();
     document.getElementById('diag-progress').textContent = `${diagSesion.preguntasHechas + 1} / ~24`;
+    const etapa = MathLock.Curriculum.getEtapaDeSkill(q.skillId);
+    document.getElementById('diag-skill-name').textContent =
+        `${etapa ? `Etapa ${etapa.numero} · ` : ''}${MathLock.Skills.SKILLS[q.skillId]?.name || ''}`;
     const qEl = document.getElementById('diag-question');
     qEl.textContent = q.question;
     qEl.classList.remove('is-correct');
@@ -94,18 +97,27 @@ function renderDiagQuestion() {
 }
 
 document.getElementById('btn-diag-submit').addEventListener('click', () => {
-    const q = diagSesion.preguntaActual;
-    if (!q) return;
-    const correcto = evaluarRespuesta(q, leerRespuestaUsuario('diag-answer-area', q));
-    MathLock.Diagnostic.registrarRespuesta(diagSesion, correcto);
-    if (MathLock.Diagnostic.estaCompleto(diagSesion)) finalizarDiagnostico();
-    else renderDiagQuestion();
+    try {
+        const q = diagSesion.preguntaActual;
+        if (!q) return;
+        const correcto = evaluarRespuesta(q, leerRespuestaUsuario('diag-answer-area', q));
+        MathLock.Diagnostic.registrarRespuesta(diagSesion, correcto);
+        if (MathLock.Diagnostic.estaCompleto(diagSesion)) finalizarDiagnostico();
+        else renderDiagQuestion();
+    } catch (err) {
+        console.error('Error en diagnóstico, se corta y se muestra resultado parcial:', err);
+        finalizarDiagnostico();
+    }
 });
 
 function finalizarDiagnostico() {
     const resultado = MathLock.Diagnostic.resultadoFinal(diagSesion);
     currentUser.masteryMap = resultado.masteryMap;
     LC.saveUser();
+
+    const totalCorrectas = Object.values(resultado.masteryMap).reduce((s, m) => s + m.correct, 0);
+    const totalPreguntas = Object.values(resultado.masteryMap).reduce((s, m) => s + m.attempts, 0);
+    document.getElementById('diag-score').textContent = `${totalCorrectas} / ${totalPreguntas} correctas`;
 
     const etapa = MathLock.Curriculum.ETAPAS.find(e => e.id === resultado.etapaRecomendada);
     document.getElementById('diag-etapa-recomendada').textContent = etapa ? `Etapa ${etapa.numero} — ${etapa.nombre}` : '—';
@@ -151,42 +163,82 @@ function renderPath() {
     document.getElementById('path-tally').innerHTML = Array.from({ length: rachaVisible }, () => '<span class="tally-mark"></span>').join('');
 
     const proxima = MathLock.Scheduler.proximaHabilidad(currentUser.masteryMap);
-    const etapaActual = proxima ? MathLock.Curriculum.getEtapaDeSkill(proxima) : null;
-    document.getElementById('path-etapa').textContent = etapaActual
-        ? `Etapa ${etapaActual.numero} — ${etapaActual.nombre}`
+    const etapaActualId = proxima ? MathLock.Curriculum.getEtapaDeSkill(proxima)?.id : null;
+    const etapaActualObj = etapaActualId ? MathLock.Curriculum.ETAPAS.find(e => e.id === etapaActualId) : null;
+    document.getElementById('path-etapa').textContent = etapaActualObj
+        ? `Etapa ${etapaActualObj.numero} — ${etapaActualObj.nombre}`
         : '¡Currículum implementado completado! 🎉';
 
     const cont = document.getElementById('skill-path-list');
     cont.innerHTML = '';
-    MathLock.Curriculum.ETAPAS.forEach(etapa => {
-        const bloque = document.createElement('div');
-        bloque.className = 'mb-4';
-        const titulo = document.createElement('p');
-        titulo.className = 'text-xs font-bold mb-2';
-        titulo.style.color = etapa.implemented ? 'var(--chalk-dim)' : 'var(--locked)';
-        titulo.textContent = `Etapa ${etapa.numero} — ${etapa.nombre}${etapa.implemented ? '' : ' (próximamente)'}`;
-        bloque.appendChild(titulo);
 
-        if (etapa.implemented) {
-            etapa.skills.forEach((skillId, i) => {
-                const fila = document.createElement('div');
-                fila.className = 'flex items-center gap-3 mb-1';
-                const estado = estadoDeSkill(skillId);
-                fila.innerHTML = `<span class="skill-node ${estado}">${ICONO_ESTADO[estado]}</span>
-                    <span class="text-sm" style="color:var(--chalk)">${MathLock.Skills.SKILLS[skillId].name}</span>`;
-                bloque.appendChild(fila);
-            });
-        }
-        cont.appendChild(bloque);
+    const etapasImplementadas = MathLock.Curriculum.ETAPAS.filter(e => e.implemented);
+    const etapasFuturas = MathLock.Curriculum.ETAPAS.filter(e => !e.implemented);
+
+    etapasImplementadas.forEach(etapa => {
+        const dominadas = etapa.skills.filter(id => estadoDeSkill(id) === 'dominada').length;
+        const total = etapa.skills.length;
+        const pct = total ? Math.round((dominadas / total) * 100) : 0;
+
+        const details = document.createElement('details');
+        details.className = 'stage-card';
+        if (etapa.id === etapaActualId) details.open = true;
+
+        const nodosHtml = etapa.skills.map((skillId, i) => {
+            const estado = estadoDeSkill(skillId);
+            const conector = i < etapa.skills.length - 1 ? '<div class="skill-connector"></div>' : '';
+            return `<div class="flex flex-col items-center">
+                        <div class="flex items-center gap-3 w-full">
+                            <span class="skill-node ${estado}">${ICONO_ESTADO[estado]}</span>
+                            <span class="text-sm" style="color:var(--chalk)">${MathLock.Skills.SKILLS[skillId].name}</span>
+                        </div>
+                        ${conector}
+                    </div>`;
+        }).join('');
+
+        details.innerHTML = `
+            <summary>
+                <div class="flex-1">
+                    <p class="font-display font-bold text-sm" style="color:var(--chalk)">Etapa ${etapa.numero} — ${etapa.nombre}</p>
+                    <p class="text-xs font-mono mt-0.5" style="color:var(--chalk-dim)">${dominadas}/${total} dominadas</p>
+                    <div class="stage-progress-bar"><div class="stage-progress-fill" style="width:${pct}%"></div></div>
+                </div>
+                <span class="stage-chevron">▶</span>
+            </summary>
+            <div class="stage-body">${nodosHtml}</div>`;
+        cont.appendChild(details);
     });
+
+    if (etapasFuturas.length) {
+        const details = document.createElement('details');
+        details.className = 'stage-card stage-locked';
+        details.innerHTML = `
+            <summary>
+                <div class="flex-1">
+                    <p class="font-display font-bold text-sm" style="color:var(--chalk-dim)">🔒 Etapas ${etapasFuturas[0].numero}–${etapasFuturas[etapasFuturas.length - 1].numero} — Próximamente</p>
+                    <p class="text-xs mt-0.5" style="color:var(--chalk-dim)">${etapasFuturas.length} etapas más en camino</p>
+                </div>
+                <span class="stage-chevron">▶</span>
+            </summary>
+            <div class="stage-body">
+                ${etapasFuturas.map(e => `<p class="text-xs py-1" style="color:var(--chalk-dim)">Etapa ${e.numero} — ${e.nombre}</p>`).join('')}
+            </div>`;
+        cont.appendChild(details);
+    }
 }
 
 document.getElementById('btn-start-session').addEventListener('click', () => {
-    const plan = MathLock.Scheduler.planRepasoDiario(currentUser.masteryMap);
-    const preguntas = MathLock.Engine.generateMixedSession(plan.length ? plan : [{ skillId: 'arithmetic.integers.add_sub', dificultad: 1, cantidad: 6 }]);
-    leccion = { preguntas, indice: 0, correctas: 0 };
-    renderLessonQuestion();
-    showScreen('lesson');
+    try {
+        const plan = MathLock.Scheduler.planRepasoDiario(currentUser.masteryMap);
+        const preguntas = MathLock.Engine.generateMixedSession(plan.length ? plan : [{ skillId: 'arithmetic.integers.add_sub', dificultad: 1, cantidad: 6 }]);
+        if (!preguntas.length) throw new Error('El motor no generó preguntas');
+        leccion = { preguntas, indice: 0, correctas: 0 };
+        renderLessonQuestion();
+        showScreen('lesson');
+    } catch (err) {
+        console.error('No se pudo iniciar la sesión de práctica:', err);
+        alert('Hubo un problema al generar los ejercicios. Intenta de nuevo.');
+    }
 });
 
 /* ============== LECCIÓN / PRÁCTICA ============== */
