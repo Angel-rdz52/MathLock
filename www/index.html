@@ -42,23 +42,25 @@
         </section>
 
         <!-- ============ DIAGNÓSTICO ============ -->
-        <section id="screen-diagnostic" class="screen-hidden flex-col flex-1 justify-between">
-            <div>
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-xs font-bold" style="color:var(--chalk-dim)">Diagnóstico</span>
-                    <span id="diag-progress" class="text-xs font-mono" style="color:var(--chalk-dim)">1 / 24</span>
+        <section id="screen-diagnostic" class="screen-hidden flex-col flex-1 min-h-0 justify-between">
+            <div class="flex-1 min-h-0 overflow-y-auto pr-1">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-bold" style="color:var(--chalk-dim)">🔍 Diagnóstico</span>
+                    <span id="diag-progress" class="text-xs font-mono" style="color:var(--chalk-dim)">1 / ~24</span>
                 </div>
+                <p id="diag-skill-name" class="text-xs font-semibold mb-3" style="color:var(--teal)">—</p>
                 <div class="rounded-2xl p-6 mb-4" style="background:var(--panel-raised); border:1px solid var(--grid-line)">
                     <p id="diag-question" class="chalk-underline font-mono text-xl font-bold text-center" style="color:var(--chalk)">—</p>
                 </div>
                 <div id="diag-answer-area" class="space-y-2"></div>
             </div>
-            <button id="btn-diag-submit" class="w-full btn-primary">Responder</button>
+            <button id="btn-diag-submit" class="w-full btn-primary mt-3 shrink-0">Responder</button>
         </section>
 
         <!-- ============ RESULTADO DEL DIAGNÓSTICO ============ -->
-        <section id="screen-diagnostic-result" class="screen-hidden flex-col justify-center flex-1 space-y-4 overflow-y-auto">
+        <section id="screen-diagnostic-result" class="screen-hidden flex-col justify-center flex-1 min-h-0 space-y-4 overflow-y-auto">
             <h2 class="font-display text-xl font-bold text-center" style="color:var(--chalk)">Tu perfil matemático</h2>
+            <p id="diag-score" class="font-mono text-center text-lg" style="color:var(--amber)">—</p>
             <div class="rounded-xl p-4" style="background:var(--teal-dim); border:1px solid var(--teal)">
                 <p class="text-xs font-bold mb-1" style="color:var(--teal)">Punto recomendado</p>
                 <p id="diag-etapa-recomendada" class="font-display font-bold" style="color:var(--chalk)">—</p>
@@ -75,8 +77,8 @@
         </section>
 
         <!-- ============ RUTA / DASHBOARD ============ -->
-        <section id="screen-path" class="screen-hidden flex-col flex-1 justify-between">
-            <div class="flex-1 overflow-y-auto pr-1">
+        <section id="screen-path" class="screen-hidden flex-col flex-1 min-h-0 justify-between">
+            <div class="flex-1 min-h-0 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center mb-4">
                     <div>
                         <h2 id="path-name" class="font-display text-lg font-bold" style="color:var(--chalk)">Hola</h2>
@@ -104,8 +106,8 @@
         </section>
 
         <!-- ============ LECCIÓN / PRÁCTICA ============ -->
-        <section id="screen-lesson" class="screen-hidden flex-col flex-1 justify-between">
-            <div>
+        <section id="screen-lesson" class="screen-hidden flex-col flex-1 min-h-0 justify-between">
+            <div class="flex-1 min-h-0 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center mb-3">
                     <span id="lesson-skill-name" class="text-xs font-bold" style="color:var(--chalk-dim)">—</span>
                     <span id="lesson-progress" class="text-xs font-mono" style="color:var(--chalk-dim)">1 / 6</span>
@@ -116,7 +118,7 @@
                 <div id="lesson-answer-area" class="space-y-2"></div>
                 <p id="lesson-feedback" class="hidden text-sm mt-3 p-3 rounded-xl" style="background:var(--panel-raised)"></p>
             </div>
-            <button id="btn-lesson-submit" class="w-full btn-primary">Responder</button>
+            <button id="btn-lesson-submit" class="w-full btn-primary mt-3 shrink-0">Responder</button>
         </section>
 
         <!-- ============ RESULTADOS DE SESIÓN ============ -->
@@ -129,7 +131,7 @@
         </section>
 
         <!-- ============ CANJE (reutiliza parental.js) ============ -->
-        <section id="screen-redeem" class="screen-hidden flex-col flex-1 justify-start space-y-3 overflow-y-auto">
+        <section id="screen-redeem" class="screen-hidden flex-col flex-1 min-h-0 justify-start space-y-3 overflow-y-auto">
             <div class="flex justify-between items-center mb-1">
                 <h2 class="font-display text-lg font-bold" style="color:var(--chalk)">🔓 Canjear puntos</h2>
                 <button id="btn-redeem-back" class="text-sm font-semibold" style="color:var(--teal)">← Volver</button>
@@ -242,4 +244,4 @@
     <script src="parental.js"></script>
     <script src="app.js"></script>
 </body>
-</html>
+    </html>
