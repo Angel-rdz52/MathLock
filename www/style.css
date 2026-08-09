@@ -1,0 +1,128 @@
+/* style.css — MathLock
+   Identidad: pizarrón (chalkboard) + hoja cuadriculada. Los ejercicios y
+   ecuaciones se muestran en una tipografía monoespaciada (como una
+   calculadora gráfica); los aciertos se subrayan con un trazo de "tiza"
+   animado — el elemento distintivo de la app. Todo lo demás se mantiene
+   sobrio para no competir con ese momento.
+*/
+
+:root {
+    --ink: #17212B;
+    --panel: #1F2C3A;
+    --panel-raised: #253546;
+    --grid-line: rgba(244, 241, 232, 0.07);
+    --chalk: #EDEAE0;
+    --chalk-dim: #93A5B5;
+    --amber: #E8A33D;
+    --amber-dim: rgba(232, 163, 61, 0.16);
+    --teal: #5FBBAA;
+    --teal-dim: rgba(95, 187, 170, 0.14);
+    --coral: #E2757A;
+    --coral-dim: rgba(226, 117, 122, 0.14);
+    --locked: #3A4A5C;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+body {
+    background: var(--ink);
+    color: var(--chalk);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace; }
+
+/* Textura de hoja cuadriculada, sutil, para tarjetas de ejercicio */
+.grid-paper {
+    background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-color: var(--panel);
+}
+
+.screen-hidden { display: none !important; }
+.screen-active { display: flex !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+    .screen-active { animation: fadeIn 0.35s ease-out; }
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== Elemento distintivo: subrayado de tiza al acertar ===== */
+.chalk-underline { position: relative; display: inline-block; }
+.chalk-underline::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 100%; bottom: -6px;
+    height: 3px;
+    background: var(--amber);
+    border-radius: 2px;
+}
+.chalk-underline.is-correct::after {
+    right: 0;
+    transition: right 0.5s cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-reduced-motion: reduce) {
+    .chalk-underline.is-correct::after { transition: none; }
+}
+
+/* ===== Opciones (multiple choice) ===== */
+.option-btn {
+    width: 100%; text-align: left; padding: 0.9rem 1rem;
+    font-size: 1.05rem; font-weight: 600;
+    border: 2px solid var(--grid-line);
+    border-radius: 0.9rem;
+    background: var(--panel-raised);
+    color: var(--chalk);
+    transition: border-color 0.15s, background-color 0.15s;
+}
+.option-btn:active { background: var(--locked); }
+.option-btn.selected { border-color: var(--amber); background: var(--amber-dim); }
+.option-btn.correct { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); }
+.option-btn.incorrect { background: var(--coral-dim); border-color: var(--coral); color: var(--coral); }
+
+/* ===== Input numérico/fracción de respuesta ===== */
+.answer-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem; text-align: center;
+    background: var(--panel-raised);
+    border: 2px solid var(--grid-line);
+    border-radius: 0.9rem;
+    color: var(--chalk);
+    padding: 0.75rem;
+}
+.answer-input:focus { outline: none; border-color: var(--amber); }
+
+/* ===== Nodos de la ruta de aprendizaje ===== */
+.skill-node {
+    width: 3rem; height: 3rem; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+    border: 2px solid var(--locked);
+    background: var(--panel-raised);
+    color: var(--chalk-dim);
+    flex-shrink: 0;
+}
+.skill-node.disponible { border-color: var(--teal); color: var(--teal); }
+.skill-node.en-progreso { border-color: var(--teal); background: var(--teal-dim); color: var(--teal); }
+.skill-node.dominada { border-color: var(--amber); background: var(--amber-dim); color: var(--amber); }
+.skill-node.requiere-repaso { border-color: var(--amber); color: var(--amber); border-style: dashed; }
+
+.skill-connector { width: 2px; flex: 1; background: var(--grid-line); min-height: 1.25rem; margin: 0 auto; }
+
+/* ===== Marcas de racha (tally, no ícono de "flama" genérico) ===== */
+.tally-mark { display: inline-block; width: 3px; height: 1rem; background: var(--amber); margin-right: 3px; border-radius: 1px; }
+
+.btn-primary {
+    background: var(--amber); color: var(--ink); font-weight: 700;
+    border-radius: 0.9rem; padding: 0.9rem; text-align: center;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}
+.btn-primary:active { transform: translateY(1px); box-shadow: none; }
+
+.btn-secondary {
+    background: transparent; color: var(--chalk-dim); font-weight: 600;
+    border: 2px solid var(--grid-line); border-radius: 0.9rem; padding: 0.85rem; text-align: center;
+}

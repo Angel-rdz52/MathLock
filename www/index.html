@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathLock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center p-4">
+
+    <main class="w-full max-w-md rounded-2xl shadow-xl overflow-hidden p-6 relative h-[85vh] max-h-[720px] min-h-[540px] flex flex-col justify-between grid-paper">
+
+        <!-- ============ LOGIN ============ -->
+        <section id="screen-login" class="screen-active flex-col justify-center items-center flex-1 space-y-6">
+            <div class="text-center">
+                <p class="font-mono text-sm text-teal-400" style="color:var(--teal)">x + 5 = 12</p>
+                <h1 class="font-display text-3xl font-bold mt-2" style="color:var(--chalk)">MathLock</h1>
+                <p class="text-sm mt-1" style="color:var(--chalk-dim)">Resuelve para desbloquear tu tiempo de pantalla</p>
+            </div>
+
+            <div class="w-full space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1" style="color:var(--chalk-dim)">¿Cómo te llamas?</label>
+                    <input type="text" id="input-name" placeholder="Tu nombre..."
+                        class="w-full px-4 py-3 rounded-xl text-lg answer-input" style="text-align:left; font-family:'Inter',sans-serif;">
+                </div>
+                <button id="btn-start" class="w-full btn-primary text-lg">Continuar</button>
+            </div>
+        </section>
+
+        <!-- ============ ELECCIÓN DE INICIO ============ -->
+        <section id="screen-start-choice" class="screen-hidden flex-col justify-center items-center flex-1 space-y-5">
+            <h2 class="font-display text-xl font-bold text-center" style="color:var(--chalk)">¿Por dónde empezamos?</h2>
+            <p class="text-sm text-center" style="color:var(--chalk-dim)">El diagnóstico es corto (~20 preguntas) y nos ayuda a ubicarte en el nivel justo. No se "reprueba": no penaliza errores.</p>
+            <div class="w-full space-y-3">
+                <button id="btn-choice-diagnostic" class="w-full btn-primary">🔍 Diagnóstico rápido</button>
+                <button id="btn-choice-scratch" class="w-full btn-secondary">Empezar desde cero</button>
+            </div>
+        </section>
+
+        <!-- ============ DIAGNÓSTICO ============ -->
+        <section id="screen-diagnostic" class="screen-hidden flex-col flex-1 justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold" style="color:var(--chalk-dim)">Diagnóstico</span>
+                    <span id="diag-progress" class="text-xs font-mono" style="color:var(--chalk-dim)">1 / 24</span>
+                </div>
+                <div class="rounded-2xl p-6 mb-4" style="background:var(--panel-raised); border:1px solid var(--grid-line)">
+                    <p id="diag-question" class="chalk-underline font-mono text-xl font-bold text-center" style="color:var(--chalk)">—</p>
+                </div>
+                <div id="diag-answer-area" class="space-y-2"></div>
+            </div>
+            <button id="btn-diag-submit" class="w-full btn-primary">Responder</button>
+        </section>
+
+        <!-- ============ RESULTADO DEL DIAGNÓSTICO ============ -->
+        <section id="screen-diagnostic-result" class="screen-hidden flex-col justify-center flex-1 space-y-4 overflow-y-auto">
+            <h2 class="font-display text-xl font-bold text-center" style="color:var(--chalk)">Tu perfil matemático</h2>
+            <div class="rounded-xl p-4" style="background:var(--teal-dim); border:1px solid var(--teal)">
+                <p class="text-xs font-bold mb-1" style="color:var(--teal)">Punto recomendado</p>
+                <p id="diag-etapa-recomendada" class="font-display font-bold" style="color:var(--chalk)">—</p>
+            </div>
+            <div>
+                <p class="text-xs font-bold mb-1" style="color:var(--teal)">✓ Fortalezas</p>
+                <div id="diag-fortalezas" class="flex flex-wrap gap-1 text-xs"></div>
+            </div>
+            <div>
+                <p class="text-xs font-bold mb-1" style="color:var(--amber)">⚠ A reforzar</p>
+                <div id="diag-debilidades" class="flex flex-wrap gap-1 text-xs"></div>
+            </div>
+            <button id="btn-diag-continue" class="w-full btn-primary">Ir a mi ruta</button>
+        </section>
+
+        <!-- ============ RUTA / DASHBOARD ============ -->
+        <section id="screen-path" class="screen-hidden flex-col flex-1 justify-between">
+            <div class="flex-1 overflow-y-auto pr-1">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 id="path-name" class="font-display text-lg font-bold" style="color:var(--chalk)">Hola</h2>
+                        <p id="path-etapa" class="text-xs font-semibold" style="color:var(--teal)">Etapa 1 — Números y operaciones</p>
+                    </div>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" style="background:var(--panel-raised)">
+                        <span id="path-tally" class="flex items-end"></span>
+                        <span id="path-points" class="font-mono font-bold text-sm" style="color:var(--amber)">0</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button id="btn-open-redeem" class="p-3 rounded-xl text-center font-bold text-sm" style="background:var(--amber-dim); color:var(--amber); border:1px solid var(--amber)">
+                        🔓 Canjear tiempo
+                    </button>
+                    <button id="btn-open-admin" class="p-3 rounded-xl text-center font-bold text-sm" style="background:var(--panel-raised); color:var(--chalk-dim); border:1px solid var(--grid-line)">
+                        🔒 Control parental
+                    </button>
+                </div>
+
+                <div id="skill-path-list" class="space-y-0"></div>
+            </div>
+
+            <button id="btn-start-session" class="w-full btn-primary text-lg mt-3">▶ Practicar hoy</button>
+        </section>
+
+        <!-- ============ LECCIÓN / PRÁCTICA ============ -->
+        <section id="screen-lesson" class="screen-hidden flex-col flex-1 justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <span id="lesson-skill-name" class="text-xs font-bold" style="color:var(--chalk-dim)">—</span>
+                    <span id="lesson-progress" class="text-xs font-mono" style="color:var(--chalk-dim)">1 / 6</span>
+                </div>
+                <div class="rounded-2xl p-6 mb-4" style="background:var(--panel-raised); border:1px solid var(--grid-line)">
+                    <p id="lesson-question" class="chalk-underline font-mono text-xl font-bold text-center block" style="color:var(--chalk)">—</p>
+                </div>
+                <div id="lesson-answer-area" class="space-y-2"></div>
+                <p id="lesson-feedback" class="hidden text-sm mt-3 p-3 rounded-xl" style="background:var(--panel-raised)"></p>
+            </div>
+            <button id="btn-lesson-submit" class="w-full btn-primary">Responder</button>
+        </section>
+
+        <!-- ============ RESULTADOS DE SESIÓN ============ -->
+        <section id="screen-results" class="screen-hidden flex-col justify-center items-center flex-1 space-y-4 text-center">
+            <span class="text-4xl">🎯</span>
+            <h2 class="font-display text-2xl font-bold" style="color:var(--chalk)">¡Sesión completa!</h2>
+            <p class="font-mono text-lg" style="color:var(--amber)"><span id="result-correct">0</span>/<span id="result-total">0</span> correctas</p>
+            <p id="result-points-msg" class="text-sm" style="color:var(--chalk-dim)">+0 puntos ganados</p>
+            <button id="btn-results-home" class="w-full btn-primary">Volver a mi ruta</button>
+        </section>
+
+        <!-- ============ CANJE (reutiliza parental.js) ============ -->
+        <section id="screen-redeem" class="screen-hidden flex-col flex-1 justify-start space-y-3 overflow-y-auto">
+            <div class="flex justify-between items-center mb-1">
+                <h2 class="font-display text-lg font-bold" style="color:var(--chalk)">🔓 Canjear puntos</h2>
+                <button id="btn-redeem-back" class="text-sm font-semibold" style="color:var(--teal)">← Volver</button>
+            </div>
+            <p class="text-xs" style="color:var(--chalk-dim)">Usa tus puntos para desbloquear apps por un tiempo.</p>
+            <div id="redeem-app-list" class="space-y-2"></div>
+        </section>
+
+        <!-- ============ CONTROL PARENTAL (reutiliza parental.js) ============ -->
+        <section id="screen-admin-pin" class="screen-hidden flex-col flex-1 justify-center items-center space-y-4">
+            <span class="text-4xl">🔒</span>
+            <h2 class="font-display text-lg font-bold" style="color:var(--chalk)">Acceso de control parental</h2>
+            <input type="password" inputmode="numeric" maxlength="6" id="admin-pin-input" placeholder="PIN"
+                class="w-full text-center text-2xl tracking-widest px-4 py-3 rounded-xl answer-input">
+            <button id="btn-admin-pin-submit" class="w-full btn-primary">Entrar</button>
+            <button id="btn-admin-pin-cancel" class="text-sm" style="color:var(--chalk-dim)">Cancelar</button>
+        </section>
+
+        <section id="screen-admin" class="screen-hidden flex-col flex-1 min-h-0">
+            <div class="flex justify-between items-center mb-1 shrink-0">
+                <h2 class="font-display text-lg font-bold" style="color:var(--chalk)">🔒 Control parental</h2>
+                <button id="btn-admin-back" class="text-sm font-semibold" style="color:var(--teal)">← Volver</button>
+            </div>
+
+            <div id="admin-notices" class="shrink-0 max-h-52 overflow-y-auto space-y-2 mb-2 pr-1">
+                <div id="admin-permission-warning" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl">
+                    Faltan permisos de Android para poder bloquear apps.
+                    <p class="mt-2">
+                        <span id="status-usage">⏳</span> Acceso de uso<br>
+                        <span id="status-overlay">⏳</span> Mostrar sobre otras apps
+                    </p>
+                    <button id="btn-request-permissions" class="block mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-lg">Conceder permisos</button>
+                    <p class="text-[10px] mt-1 text-red-500">Si te falta más de uno, tocá el botón, concedé el que se abra, y volvé a tocarlo para el siguiente.</p>
+                </div>
+
+                <div id="admin-battery-warning" class="hidden bg-amber-50 border border-amber-200 text-amber-700 text-xs p-3 rounded-xl">
+                    El sistema puede matar el bloqueo en segundo plano para ahorrar batería.
+                    <button id="btn-request-battery" class="block mt-2 w-full py-2 bg-amber-600 text-white font-bold rounded-lg">Desactivar optimización de batería</button>
+                </div>
+
+                <div id="admin-uninstall-warning" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl">
+                    MathLock se puede desinstalar libremente ahora mismo.
+                    <button id="btn-request-device-admin" class="block mt-2 w-full py-2 bg-red-600 text-white font-bold rounded-lg">Activar protección contra desinstalación</button>
+                </div>
+
+                <button id="btn-admin-stop-timer" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2">
+                    ⛔ Detener tiempo desbloqueado ahora
+                </button>
+
+                <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 text-xs">
+                    <p class="font-bold text-purple-800 mb-1">🧒 Modo niño (acceso rápido)</p>
+                    <p class="text-purple-700 mb-2">Ícono en la barra de notificaciones para bloquear todo al instante. Activar no pide nada; desactivar pide el PIN.</p>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold text-purple-800">Estado: <span id="child-mode-status">—</span></span>
+                        <button id="btn-child-mode-toggle" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs">Cambiar</button>
+                    </div>
+                    <button id="btn-add-qs-tile" class="w-full py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-lg text-xs">
+                        ➕ Agregar ícono a la barra de accesos rápidos
+                    </button>
+                    <p class="text-[10px] text-purple-500 mt-1">Android 12 o anterior: deslizá para abrir notificaciones, tocá el lápiz de "editar accesos" y arrastrá "Modo niño" — ninguna app puede hacerlo sola.</p>
+                </div>
+            </div>
+
+            <div class="shrink-0 flex items-center space-x-2 mb-2">
+                <input type="text" id="admin-app-search" placeholder="🔍 Buscar app..."
+                    class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <span id="admin-selected-count" class="text-xs font-bold text-slate-500 whitespace-nowrap">0 elegidas</span>
+            </div>
+
+            <label class="shrink-0 flex items-center gap-2 mb-2 text-xs bg-purple-50 border border-purple-200 text-purple-700 font-semibold px-3 py-2 rounded-lg">
+                <input type="checkbox" id="admin-test-mode" class="w-4 h-4">
+                🧪 Modo prueba: tratar los "minutos" configurados como segundos
+            </label>
+
+            <div id="admin-app-list" class="flex-1 min-h-[160px] overflow-y-auto space-y-2 pr-1"></div>
+
+            <div class="shrink-0 pt-3 space-y-2">
+                <button id="btn-admin-save" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2">
+                    💾 Guardar cambios
+                </button>
+                <div class="border-t border-slate-200 pt-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Cambiar PIN de control parental</label>
+                    <div class="flex space-x-2">
+                        <input type="password" inputmode="numeric" maxlength="6" id="admin-new-pin" placeholder="Nuevo PIN"
+                            class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                        <button id="btn-admin-change-pin" class="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg text-sm">Guardar PIN</button>
+                    </div>
+                </div>
+                <p class="text-center text-[10px] text-slate-300">MathLock v0.1.0</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="math/seeded-random.js"></script>
+    <script src="math/fraction-utils.js"></script>
+    <script src="math/distractors.js"></script>
+    <script src="math/validator.js"></script>
+    <script src="math/curriculum.js"></script>
+    <script src="math/skills.js"></script>
+    <script src="math/generators/arithmetic.js"></script>
+    <script src="math/generators/fractions.js"></script>
+    <script src="math/generators/algebra.js"></script>
+    <script src="math/generators/equations.js"></script>
+    <script src="math/engine.js"></script>
+    <script src="math/mastery.js"></script>
+    <script src="math/scheduler.js"></script>
+    <script src="math/diagnostic.js"></script>
+    <script src="app-blocker.js"></script>
+    <script src="parental.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
