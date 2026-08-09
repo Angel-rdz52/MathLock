@@ -34,12 +34,17 @@
   }
 
   function siguientePregunta(sesion) {
-    if (estaCompleto(sesion)) return null;
-    const item = sesion.cola[sesion.indice];
-    const dificultad = item.intentosHechos === 0 ? 2 : 1; // segunda vuelta: más fácil
-    const ex = Engine.generateQuestion(item.skillId, dificultad);
-    sesion.preguntaActual = ex;
-    return ex;
+    while (!estaCompleto(sesion)) {
+      const item = sesion.cola[sesion.indice];
+      const dificultad = item.intentosHechos === 0 ? 2 : 1;
+      const ex = Engine.generateQuestion(item.skillId, dificultad);
+      if (ex) { sesion.preguntaActual = ex; return ex; }
+      // Esta habilidad no pudo generar pregunta: se salta por completo
+      // (no debería pasar nunca dado lo validado, pero así el diagnóstico
+      // jamás se corta a mitad de camino por una sola habilidad).
+      sesion.indice += 1;
+    }
+    return null;
   }
 
   function registrarRespuesta(sesion, correcto) {
