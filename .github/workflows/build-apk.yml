@@ -12,16 +12,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
+          cache: gradle
 
-      - uses: android-actions/setup-android@v3
+      # BORRADO: android-actions/setup-android@v3
+      # Ese paso era el que se trababa en "Fetch remote repository"
+      # ubuntu-latest ya trae el Android SDK preinstalado, no lo necesitas
 
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
 
       - name: Generar proyecto Android (si no existe ya)
         run: |
@@ -36,7 +40,7 @@ jobs:
 
       - name: Compilar APK (debug)
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Subir APK como artifact descargable
         uses: actions/upload-artifact@v4
